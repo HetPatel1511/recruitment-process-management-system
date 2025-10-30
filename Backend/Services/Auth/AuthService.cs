@@ -22,19 +22,6 @@ namespace Backend.Services.Auth
       _context = context;
     }
 
-    public IEnumerable<UserResponseDTO> GetUsers()
-    {
-      return _context.Users
-        .AsNoTracking()
-        .Select(u => new UserResponseDTO
-        {
-          Id = u.Id,
-          Name = u.Name,
-          Email = u.Email
-        })
-        .ToList();
-    }
-
     public async Task<UserResponseDTO> RegisterAsync(UserCreateDTO userDto)
     {
       var user = new User

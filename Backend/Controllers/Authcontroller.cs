@@ -18,13 +18,6 @@ namespace Backend.Controllers
         _authService = authService;
     }
 
-    [Authorize]
-    [HttpGet("getUsers")]
-    public IActionResult GetUsers()
-    {
-      return Ok(_authService.GetUsers());
-    }
-
     [HttpPost("register")]
     public async Task<ActionResult<UserResponseDTO>> Register(UserCreateDTO userDto)
     {
