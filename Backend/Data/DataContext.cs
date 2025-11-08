@@ -12,6 +12,7 @@ namespace Backend.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Position> Positions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,12 @@ namespace Backend.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.RoleId)
                 .HasDefaultValue(6);
+
+            modelBuilder.Entity<Position>()
+                .HasOne(p => p.Recruiter)
+                .WithMany()
+                .HasForeignKey(p => p.RecruiterId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Recruiter" },

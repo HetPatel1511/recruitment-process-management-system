@@ -1,31 +1,69 @@
 @Backend_HostAddress = http://localhost:5041
+@contentType = application/json
 ###
 POST {{Backend_HostAddress}}/auth/register
-Content-Type: application/json
-Accept: application/json
+Content-Type: {{contentType}}
 
 {
   "name": "John Doe",
-  "Email": "john.doe@example.com",
-  "Password": "JohnDoe@123"
-}
-###
-POST {{Backend_HostAddress}}/auth/login
-Content-Type: application/json
-Accept: application/json
-
-{
-  "email": "john.doe@example.com",
+  "email": "john.doe66@example.com",
   "password": "JohnDoe@123"
 }
 ###
-GET {{Backend_HostAddress}}/auth/getUsers
-Authorization: Bearer <YOUR_ACCESS_TOKEN_HERE>
-###
-POST {{Backend_HostAddress}}/auth/refresh
-Content-Type: application/json
-Accept: application/json
+# @name login
+POST {{Backend_HostAddress}}/auth/login
+Content-Type: {{contentType}}
 
 {
-  "refreshToken": "<YOUR_REFRESH_TOKEN_HERE>"
+  "email": "kevinpatel2383@gmail.com",
+  "password": "Kevin@123"
+  // "email": "john.doe66@example.com",
+  // "password": "JohnDoe@123"
 }
+###
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNCIsImVtYWlsIjoia2V2aW5wYXRlbDIzODNAZ21haWwuY29tIiwicm9sZSI6IkNhbmRpZGF0ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsImp0aSI6IjJiMTdkYzQxLWJhYWQtNGMwNS1iMDY3LWFkNTk3YWNiODA2ZiIsImV4cCI6MTc2MjYwODgxOCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIn0.VoA3rnUFJbwCx8zyyJKJjIcgxuYqApjOl1A7yS1VbZM
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNCIsImVtYWlsIjoia2V2aW5wYXRlbDIzODNAZ21haWwuY29tIiwicm9sZSI6IkNhbmRpZGF0ZSIsInRva2VuX3VzZSI6InJlZnJlc2giLCJqdGkiOiJhZWVlNjk4Yy1hNTYwLTQzN2EtYWU2Yi1mMmM2ODVlNmQ2YzAiLCJleHAiOjE3NjI2OTE2MTgsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSJ9.igyaAt3h2xnJx0bUI-hpC2obiYorC0CETOHFcxhbrfI
+###
+POST {{Backend_HostAddress}}/auth/refresh
+Content-Type: {{contentType}}
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+###
+GET {{Backend_HostAddress}}/positions
+Authorization: Bearer {{authToken}}
+Accept: {{contentType}}
+###
+GET {{Backend_HostAddress}}/positions/my-positions
+Authorization: Bearer {{authToken}}
+Accept: {{contentType}}
+###
+GET {{Backend_HostAddress}}/positions/1
+Authorization: Bearer {{authToken}}
+Accept: {{contentType}}
+###
+POST {{Backend_HostAddress}}/positions
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "Senior Software Engineer",
+  "description": "lorem ipsum dolor sit amet consectetur adipiscing elit. Lorem ipsum dolor sit amet consectetur adipiscing elit."
+}
+###
+PUT {{Backend_HostAddress}}/positions/8
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "description": "Senior Software Engineer (Updated)",
+  "status": "closed",
+  "reasonForClosure": "Position filled"
+}
+###
+DELETE {{Backend_HostAddress}}/positions/7
+Authorization: Bearer {{authToken}}
+###
+GET {{Backend_HostAddress}}/auth/getUsers
+Authorization: Bearer {{authToken}}

@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Services.Auth;
+using Backend.Services.Position;
+using Backend.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DotNetEnv;
+using AutoMapper;
 
 // Load .env file
 Env.Load();
@@ -52,7 +55,21 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
+
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder => builder
+            .WithOrigins("http://localhost:3000") // Your frontend URL
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 
 var app = builder.Build();
 
@@ -68,5 +85,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.UseCors("AllowFrontend");
 
 app.Run();
