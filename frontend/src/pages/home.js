@@ -3,6 +3,8 @@ import { Navbar } from '../components/Navbar';
 import { FeatureCard } from '../components/FeatureCard';
 import { CTASection } from '../components/CTASection';
 import { UserGroupIcon, DocumentTextIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { CreateItem } from '../components/CreateItem';
+import { FormInput } from '../components/FormInput';
 
 export const Home = () => {
   const features = [

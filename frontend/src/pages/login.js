@@ -5,7 +5,7 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { FormInput } from '../components/FormInput';
 import { loginUser } from '../features/auth/authApi';
-import { selectAuthStatus } from '../features/auth/authSlics';
+import { selectAuthStatus } from '../features/auth/authSlice';
 
 export const Login = () => {
   const [formData, setFormData] = useState({
@@ -48,7 +48,7 @@ export const Login = () => {
           email: formData.email,
           password: formData.password
         })).unwrap();
-        navigate('/dashboard');
+        navigate('/positions');
       } catch (error) {
         setErrors({
           ...formErrors,

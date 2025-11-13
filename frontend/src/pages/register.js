@@ -5,7 +5,7 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { FormInput } from '../components/FormInput';
 import { registerUser } from '../features/auth/authApi';
-import { selectAuthStatus } from '../features/auth/authSlics';
+import { selectAuthStatus } from '../features/auth/authSlice';
 
 export const Register = () => {
   const [formData, setFormData] = useState({

@@ -4,9 +4,9 @@ namespace Backend.DTOs.PositionDTOs
 {
     public class UpdatePositionDTO
     {
-        [StringLength(1000)]
+        [StringLength(5000)]
         public string? Description { get; set; }
-        
+
         [StringLength(20)]
         public string? Status { get; set; }
         

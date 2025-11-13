@@ -4,6 +4,8 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { Home } from './pages/home';
 import { Login } from './pages/login';
 import { Register } from './pages/register';
+import { Position } from './pages/position';
+import { NewPosition } from './pages/newPosition';
 
 function App() {
   return (
@@ -14,6 +16,10 @@ function App() {
           <Route path='/auth'>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+          </Route>
+          <Route path='/positions'>
+            <Route index element={<Position />} />
+            <Route path="new" element={<NewPosition />} />
           </Route>
         </Routes>
       </BrowserRouter>

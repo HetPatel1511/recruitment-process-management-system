@@ -8,7 +8,7 @@ namespace Backend.DTOs.PositionDTOs
         [StringLength(200)]
         public string Title { get; set; } = string.Empty;
 
-        [StringLength(1000)]
+        [StringLength(5000)]
         public string? Description { get; set; }
         
         [Required]

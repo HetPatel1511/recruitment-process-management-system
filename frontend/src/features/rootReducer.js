@@ -1,8 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit";
-import authReducer from "./auth/authSlics";
+import authReducer from "./auth/authSlice";
+import positionsReducer from "./positions/positionsSlice";
 
 const rootReducer = combineReducers({
-    auth: authReducer
+    auth: authReducer,
+    positions: positionsReducer
 });
 
 export default rootReducer;
