@@ -21,7 +21,7 @@ Content-Type: {{contentType}}
   // "password": "JohnDoe@123"
 }
 ###
-@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNCIsImVtYWlsIjoia2V2aW5wYXRlbDIzODNAZ21haWwuY29tIiwicm9sZSI6IkNhbmRpZGF0ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsImp0aSI6ImY4MGU0MzkzLWZkOWEtNDliNS04OWZiLTA4MzFiOTBkYTQyMyIsImV4cCI6MTc2MjkzMjg4MSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIn0.VP2BDpL3nnjiZe6KxjvGrGwLrpSgWz8oPlYOxIiYzGk
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNCIsImVtYWlsIjoia2V2aW5wYXRlbDIzODNAZ21haWwuY29tIiwicm9sZSI6IkNhbmRpZGF0ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsImp0aSI6IjE1OTdhNmYzLWRiNWQtNDhlZC1iNjg3LTJjOWEyYTRlMTVhMiIsImV4cCI6MTc2MzEwODE0MCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIn0.VkaxNuH_8Leso1QVLzerIgbiqyKyc2jTVJgoVjQZB2s
 @refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNCIsImVtYWlsIjoia2V2aW5wYXRlbDIzODNAZ21haWwuY29tIiwicm9sZSI6IkNhbmRpZGF0ZSIsInRva2VuX3VzZSI6InJlZnJlc2giLCJqdGkiOiI0ZWMyMDViOS0zZTY3LTQwMzEtODZlNy05MDZiY2Q3YjVhMTEiLCJleHAiOjE3NjI5Mzg1NTAsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSJ9.g-vKlDF2lsap53O_iexITeYRiAd_7q7h2SfhYVAC3qw
 ###
 POST {{Backend_HostAddress}}/auth/refresh
@@ -30,6 +30,13 @@ Content-Type: {{contentType}}
 {
   "refreshToken": "{{refreshToken}}"
 }
+
+HTTP/1.1 200  - OK
+connection: close
+content-type: application/json; charset=utf-8
+date: Fri, 14 Nov 2025 07:15:40 GMT
+server: Kestrel
+transfer-encoding: chunked
 ###
 GET {{Backend_HostAddress}}/positions
 Authorization: Bearer {{authToken}}
@@ -50,6 +57,18 @@ GET {{Backend_HostAddress}}/positions/1
 Authorization: Bearer {{authToken}}
 Accept: {{contentType}}
 ###
+POST {{Backend_HostAddress}}/positions/apply/18
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+HTTP/1.1 200  - OK
+connection: close
+content-type: application/json; charset=utf-8
+date: Fri, 14 Nov 2025 07:35:01 GMT
+server: Kestrel
+transfer-encoding: chunked
+###
 POST {{Backend_HostAddress}}/positions
 Authorization: Bearer {{authToken}}
 Content-Type: {{contentType}}
@@ -60,15 +79,22 @@ Content-Type: {{contentType}}
   "yearsOfExperienceRequired": 2
 }
 ###
-PUT {{Backend_HostAddress}}/positions/8
+PUT {{Backend_HostAddress}}/positions/16
 Authorization: Bearer {{authToken}}
 Content-Type: {{contentType}}
 
 {
-  "description": "Senior Software Engineer (Updated)",
+  // "description": "Senior Software Engineer (Updated)",
   "status": "closed",
   "reasonForClosure": "Position filled"
 }
+
+HTTP/1.1 200  - OK
+connection: close
+content-type: application/json; charset=utf-8
+date: Fri, 14 Nov 2025 07:26:52 GMT
+server: Kestrel
+transfer-encoding: chunked
 ###
 DELETE {{Backend_HostAddress}}/positions/7
 Authorization: Bearer {{authToken}}

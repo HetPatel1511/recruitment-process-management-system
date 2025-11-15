@@ -11,5 +11,6 @@ namespace Backend.Services.Position
         Task<IEnumerable<PositionResponseDTO>> GetPositionsByRecruiterIdAsync(int recruiterId);
         Task<PositionResponseDTO> UpdatePositionAsync(int id, UpdatePositionDTO updatePositionDTO, int recruiterId);
         Task<bool> DeletePositionAsync(int id, int recruiterId);
+        Task<PositionApplicationDTO> ApplyForPositionAsync(int positionId, int userId);
     }
 }

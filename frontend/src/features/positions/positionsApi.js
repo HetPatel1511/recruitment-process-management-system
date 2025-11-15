@@ -24,4 +24,18 @@ export const createPosition = createAsyncThunk(
       return rejectWithValue(error.response?.data || { message: 'Invalid input' });
     }
   }
+)
+
+export const applyForPosition = createAsyncThunk(
+  'positions/applyForPosition',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(API_URLS.APPLY_FOR_POSITION.replace(':id', data.id));
+      console.log(response);
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Invalid input' });
+    }
+  }
 );

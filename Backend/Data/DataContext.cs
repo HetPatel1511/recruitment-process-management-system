@@ -13,7 +13,7 @@ namespace Backend.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Position> Positions { get; set; }
-
+        public DbSet<AuthPosition> AuthPositions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -42,6 +42,21 @@ namespace Backend.Data
                 new Role { Id = 5, Name = "Admin" },
                 new Role { Id = 6, Name = "Candidate" }
             );
+
+            modelBuilder.Entity<AuthPosition>()
+                .HasKey(up => new { up.UserId, up.PositionId });
+
+            modelBuilder.Entity<AuthPosition>()
+                .HasOne(p => p.User)
+                .WithMany()
+                .HasForeignKey(ap => ap.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AuthPosition>()
+                .HasOne(p => p.Position)
+                .WithMany()
+                .HasForeignKey(ap => ap.PositionId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
     }

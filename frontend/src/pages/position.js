@@ -3,10 +3,13 @@ import { Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navbar } from '../components/Navbar';
 import { FunnelIcon, MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
-import { getPositions } from '../features/positions/positionsApi';
+import { applyForPosition, getPositions } from '../features/positions/positionsApi';
 import { selectPositions, selectPositionStatus, selectPositionError } from '../features/positions/positionsSlice';
 import ErrorAlert from '../components/ErrorAlert';
 import CreateItem from '../components/CreateItem';
+import Button from '../components/Button';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const Position = () => {
   const dispatch = useDispatch();
@@ -85,7 +88,6 @@ export const Position = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div>
@@ -172,13 +174,36 @@ export const Position = () => {
                           <h3 className="text-lg font-medium text-indigo-600">
                             {position.title}
                           </h3>
-                          <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                            position.status === 'Open' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {position.status}
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                              position.status === 'Open' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {position.status}
+                            </span>
+                            {position.status === 'open' && (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  dispatch(applyForPosition({ id: position.id }))
+                                    .unwrap()
+                                    .catch(() => {
+                                      // Error is already handled by the toast in the slice
+                                    });
+                                }}
+                                disabled={status === 'loading'}
+                                className={`inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                                  status === 'loading' 
+                                    ? 'bg-blue-400 cursor-not-allowed' 
+                                    : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+                                }`}
+                              >
+                                {status === 'loading' ? 'Applying...' : 'Apply'}
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <p className="mt-2 text-gray-600 truncate w-full">
                           {position.description}

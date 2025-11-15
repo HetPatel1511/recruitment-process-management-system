@@ -20,75 +20,137 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PositionResponseDTO>>> GetPositions()
+        public async Task<IActionResult> GetPositions()
         {
-            var positions = await _positionService.GetAllPositionsAsync();
-            return Ok(positions);
+            try
+            {
+                var positions = await _positionService.GetAllPositionsAsync();
+                return Ok(new { success = true, message = "Positions retrieved successfully", data = positions });
+            }
+            catch (Exception e)
+            {
+                
+                return StatusCode(500, new { success = false, message = e.Message });
+            }
         }
 
         [HttpGet("my-positions")]
-        public async Task<ActionResult<IEnumerable<PositionResponseDTO>>> GetMyPositions()
+        public async Task<IActionResult> GetMyPositions()
         {
-            var recruiterId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-            var positions = await _positionService.GetPositionsByRecruiterIdAsync(recruiterId);
-            return Ok(positions);
+            try
+            {
+                var recruiterId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(recruiterId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid user ID in token" });
+                }
+                var positions = await _positionService.GetPositionsByRecruiterIdAsync(int.Parse(recruiterId));
+                return Ok(new { success = true, message = "Positions retrieved successfully", data = positions });
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { success = false, message = e.Message });
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PositionResponseDTO>> GetPosition(int id)
         {
-            var position = await _positionService.GetPositionByIdAsync(id);
-            if (position == null)
+            try
             {
-                return NotFound();
+                var position = await _positionService.GetPositionByIdAsync(id);
+                if (position == null)
+                {
+                    return NotFound(new { success = false, message = "Position not found" });
+                }
+                return Ok(new { success = true, message = "Position retrieved successfully", data = position });
             }
-            return Ok(position);
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<PositionResponseDTO>> CreatePosition([FromBody] CreatePositionDTO createPositionDTO)
+        public async Task<IActionResult> CreatePosition([FromBody] CreatePositionDTO createPositionDTO)
         {
-            var recruiterId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-            var position = await _positionService.CreatePositionAsync(createPositionDTO, recruiterId);
-            return CreatedAtAction(nameof(GetPosition), new { id = position.Id }, position);
+            try
+            {
+                var recruiterId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(recruiterId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid user ID in token" });
+                }
+
+                var position = await _positionService.CreatePositionAsync(createPositionDTO, int.Parse(recruiterId));
+                return CreatedAtAction(nameof(GetPosition), 
+                    new { id = position.Id }, 
+                    new { success = true, message = "Position created successfully", data = position });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePosition(int id, UpdatePositionDTO updatePositionDTO)
         {
-            var recruiterId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-            var position = await _positionService.UpdatePositionAsync(id, updatePositionDTO, recruiterId);
-            
-            if (position == null)
+            try
             {
-                return NotFound();
+                var recruiterId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(recruiterId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid user ID in token" });
+                }
+
+                var position = await _positionService.UpdatePositionAsync(id, updatePositionDTO, int.Parse(recruiterId));
+                return Ok(new { success = true, message = "Position updated successfully", data = position });
             }
-            
-            return Ok(position);
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePosition(int id)
         {
-            var recruiterId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
-            var result = await _positionService.DeletePositionAsync(id, recruiterId);
-            
-            if (!result)
+            try
             {
-                throw new Exception("Position not found");
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid user ID in token" });
+                }
+
+                var result = await _positionService.DeletePositionAsync(id, userId);
+                return Ok(new { success = true, message = "Position deleted successfully" });
             }
-            return Ok(new { success = true });
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
 
-        // private int GetCurrentUserId()
-        // {
-        //     var userId = HttpContext.User?.FindFirst("sub")?.Value;
-        //     Console.WriteLine(userId);
-        //     if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int id))
-        //     {
-        //         throw new UnauthorizedAccessException("Invalid user ID in token");
-        //     }
-        //     return id;
-        // }
+        [HttpPost("apply/{id}")]
+        public async Task<IActionResult> ApplyForPosition(int id)
+        {
+            try
+            {
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid user ID in token" });
+                }
+
+                var application = await _positionService.ApplyForPositionAsync(id, int.Parse(userIdClaim));
+                return Ok(new { success = true, message = "Successfully applied for the position", data = application });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

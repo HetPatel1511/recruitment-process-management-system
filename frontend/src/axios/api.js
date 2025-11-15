@@ -12,5 +12,6 @@ export const API_URLS = {
     GET_MY_POSITIONS: "/positions/my-position",
     CREATE_POSITION: "/positions",
     UPDATE_POSITION: "/positions/:id",
-    DELETE_POSITION: "/positions/:id"
+    DELETE_POSITION: "/positions/:id",
+    APPLY_FOR_POSITION: "/positions/apply/:id"
 };

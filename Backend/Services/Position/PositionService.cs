@@ -88,12 +88,56 @@ namespace Backend.Services.Position
                 .FirstOrDefaultAsync(p => p.Id == id && p.RecruiterId == recruiterId);
 
             if (position == null)
-                return false;
+                throw new Exception("Position not found");
 
             _context.Positions.Remove(position);
             await _context.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<PositionApplicationDTO> ApplyForPositionAsync(int positionId, int userId)
+        {
+            var position = await _context.Positions.FindAsync(positionId);
+            if (position == null)
+                throw new Exception("Position not found");
+            if (position.Status != "open")
+                throw new Exception("Position is closed");
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                throw new Exception("User not found");
+
+            var existingApplication = await _context.AuthPositions
+                .FirstOrDefaultAsync(ap => ap.PositionId == positionId && ap.UserId == userId);
+                
+            if (existingApplication != null)
+                throw new Exception("You have already applied for this position");
+
+            var authPosition = new AuthPosition
+            {
+                UserId = userId,
+                PositionId = positionId
+            };
+
+            _context.AuthPositions.Add(authPosition);
+            await _context.SaveChangesAsync();
+
+            await _context.Entry(authPosition)
+                .Reference(ap => ap.User)
+                .LoadAsync();
+                
+            await _context.Entry(authPosition)
+                .Reference(ap => ap.Position)
+                .LoadAsync();
+
+            return new PositionApplicationDTO
+            {
+                Id = authPosition.Id,
+                User = _mapper.Map<UserResponseDTO>(authPosition.User),
+                Position = _mapper.Map<PositionResponseDTO>(authPosition.Position),
+                AppliedAt = authPosition.AppliedAt
+            };
         }
     }
 }

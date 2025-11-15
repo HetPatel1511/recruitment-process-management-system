@@ -28,6 +28,8 @@ namespace Backend.Entities
 
         public Role? Role { get; set; }
 
+        public virtual ICollection<AuthPosition>? AuthPositions { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }

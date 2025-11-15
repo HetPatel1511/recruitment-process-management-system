@@ -6,10 +6,22 @@ import { Login } from './pages/login';
 import { Register } from './pages/register';
 import { Position } from './pages/position';
 import { NewPosition } from './pages/newPosition';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
     <div className="App min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        // pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
       <BrowserRouter>
         <Routes>
           <Route path='/' element={<Home />} />
