@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
 
 namespace Backend.Services.Auth
 {
@@ -15,11 +16,13 @@ namespace Backend.Services.Auth
   {
     private readonly IConfiguration _configuration;
     private readonly DataContext _context;
+    private readonly IMapper _mapper;
 
-    public AuthService(IConfiguration configuration, DataContext context)
+    public AuthService(IConfiguration configuration, DataContext context, IMapper mapper)
     {
       _configuration = configuration;
       _context = context;
+      _mapper = mapper;
     }
 
     public async Task<UserResponseDTO> RegisterAsync(UserCreateDTO userDto)
@@ -50,7 +53,7 @@ namespace Backend.Services.Auth
         Id = user.Id,
         Name = user.Name,
         Email = user.Email,
-        Role = user.Role.Name
+        Role = _mapper.Map<RoleDTO>(user.Role)
       };
     }
 
@@ -81,13 +84,12 @@ namespace Backend.Services.Auth
       
       var accessToken = CreateToken(payload, int.Parse(jwtSettings["ACCESS_TOKEN_EXPIRE_MINUTES"]), "access");
       var refreshToken = CreateToken(payload, int.Parse(jwtSettings["REFRESH_TOKEN_EXPIRE_MINUTES"]), "refresh");
-
       return new UserResponseDTO
       {
         Id = user.Id,
         Name = user.Name,
         Email = user.Email,
-        Role = user.Role.Name,
+        Role = _mapper.Map<RoleDTO>(user.Role),
         AccessToken = accessToken,
         RefreshToken = refreshToken
       };

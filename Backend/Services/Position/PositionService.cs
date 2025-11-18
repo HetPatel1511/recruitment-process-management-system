@@ -29,7 +29,7 @@ namespace Backend.Services.Position
 
             var response = _mapper.Map<PositionResponseDTO>(position);
             response.Recruiter = _mapper.Map<UserResponseDTO>(
-                await _context.Users.FindAsync(recruiterId));
+                await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == recruiterId));
 
             return response;
         }
@@ -38,8 +38,9 @@ namespace Backend.Services.Position
         {
             var position = await _context.Positions
                 .Include(p => p.Recruiter)
+                .ThenInclude(p => p.Role)
                 .FirstOrDefaultAsync(p => p.Id == id);
-
+            
             return _mapper.Map<PositionResponseDTO>(position);
         }
 
@@ -47,6 +48,7 @@ namespace Backend.Services.Position
         {
             var positions = await _context.Positions
                 .Include(p => p.Recruiter)
+                .ThenInclude(p => p.Role)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<PositionResponseDTO>>(positions);
@@ -56,6 +58,7 @@ namespace Backend.Services.Position
         {
             var positions = await _context.Positions
                 .Include(p => p.Recruiter)
+                .ThenInclude(p => p.Role)
                 .Where(p => p.RecruiterId == recruiterId)
                 .ToListAsync();
 
@@ -77,7 +80,7 @@ namespace Backend.Services.Position
 
             var response = _mapper.Map<PositionResponseDTO>(position);
             response.Recruiter = _mapper.Map<UserResponseDTO>(
-                await _context.Users.FindAsync(recruiterId));
+                await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == recruiterId));
 
             return response;
         }

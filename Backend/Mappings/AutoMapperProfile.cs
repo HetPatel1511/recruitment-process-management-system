@@ -13,6 +13,7 @@ namespace Backend.Mappings
             CreateMap<User, UserDTO>();
             CreateMap<User, UserResponseDTO>();
             CreateMap<UserDTO, User>();
+            CreateMap<Role, RoleDTO>();
             
             // Position mappings
             CreateMap<Position, PositionResponseDTO>();
