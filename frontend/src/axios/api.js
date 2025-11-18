@@ -8,7 +8,7 @@ export const API_URLS = {
 
     // Position
     GET_POSITIONS: "/positions",
-    GET_POSITION: "/positions/:id",
+    GET_SINGLE_POSITION: "/positions/:id",
     GET_MY_POSITIONS: "/positions/my-position",
     CREATE_POSITION: "/positions",
     UPDATE_POSITION: "/positions/:id",

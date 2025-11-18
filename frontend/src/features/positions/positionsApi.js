@@ -31,7 +31,34 @@ export const applyForPosition = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(API_URLS.APPLY_FOR_POSITION.replace(':id', data.id));
-      console.log(response);
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Invalid input' });
+    }
+  }
+);
+
+export const getSinglePosition = createAsyncThunk(
+  'positions/getSinglePosition',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(API_URLS.GET_SINGLE_POSITION.replace(':id', data.id));
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Invalid input' });
+    }
+  }
+);
+
+export const updatePosition = createAsyncThunk(
+  'positions/updatePosition',
+  async (data, { rejectWithValue }) => {
+    try {
+      const requestBody = { ...data };
+      delete requestBody.id;
+      const response = await axios.put(API_URLS.UPDATE_POSITION.replace(':id', data.id), requestBody);
       
       return response.data;
     } catch (error) {

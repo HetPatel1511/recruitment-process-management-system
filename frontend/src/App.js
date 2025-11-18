@@ -6,7 +6,9 @@ import { Login } from './pages/login';
 import { Register } from './pages/register';
 import { Position } from './pages/position';
 import { NewPosition } from './pages/newPosition';
+import { SinglePosition } from './pages/singlePosition';
 import { ToastContainer } from 'react-toastify';
+
 
 function App() {
   return (
@@ -30,8 +32,11 @@ function App() {
             <Route path="register" element={<Register />} />
           </Route>
           <Route path='/positions'>
+            {/* add a new single position page "/positions/:id" */}
             <Route index element={<Position />} />
             <Route path="new" element={<NewPosition />} />
+            <Route path=":id" element={<SinglePosition />} />
+
           </Route>
         </Routes>
       </BrowserRouter>
