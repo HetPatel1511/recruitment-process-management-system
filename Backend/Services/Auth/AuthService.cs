@@ -79,7 +79,7 @@ namespace Backend.Services.Auth
       {
         { JwtRegisteredClaimNames.Sub, user.Id },
         { JwtRegisteredClaimNames.Email, user.Email },
-        { "role", user.Role.Name },
+        { "role", user.Role.Name.ToLower() },
       };
       
       var accessToken = CreateToken(payload, int.Parse(jwtSettings["ACCESS_TOKEN_EXPIRE_MINUTES"]), "access");
@@ -118,7 +118,7 @@ namespace Backend.Services.Auth
       {
         { JwtRegisteredClaimNames.Sub, user.Id },
         { JwtRegisteredClaimNames.Email, user.Email },
-        { "role", user.Role.Name },
+        { "role", user.Role.Name.ToLower() },
       };
       
       var jwtSettings = _configuration.GetSection("Jwt");

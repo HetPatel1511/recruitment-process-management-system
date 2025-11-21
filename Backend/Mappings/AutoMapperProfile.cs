@@ -1,6 +1,7 @@
 using AutoMapper;
 using Backend.DTOs.AuthDTOs;
 using Backend.DTOs.PositionDTOs;
+using Backend.DTOs.SkillDTOs;
 using Backend.Entities;
 
 namespace Backend.Mappings
@@ -20,6 +21,10 @@ namespace Backend.Mappings
             CreateMap<CreatePositionDTO, Position>();
             CreateMap<UpdatePositionDTO, Position>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Skill mappings
+            CreateMap<Skill, SkillResponseDTO>();
+            CreateMap<CreateSkillDTO, Skill>();
         }
     }
 }

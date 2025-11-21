@@ -13,5 +13,10 @@ export const API_URLS = {
     CREATE_POSITION: "/positions",
     UPDATE_POSITION: "/positions/:id",
     DELETE_POSITION: "/positions/:id",
-    APPLY_FOR_POSITION: "/positions/apply/:id"
+    APPLY_FOR_POSITION: "/positions/apply/:id",
+
+    // Skill
+    GET_SKILLS: "/skills",
+    GET_SINGLE_SKILL: "/skills/:id",
+    CREATE_SKILL: "/skills",
 };

@@ -14,6 +14,7 @@ namespace Backend.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<Position> Positions { get; set; }
         public DbSet<AuthPosition> AuthPositions { get; set; }
+        public DbSet<Skill> Skills { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
