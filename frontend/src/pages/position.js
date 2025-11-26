@@ -10,6 +10,8 @@ import CreateItem from '../components/CreateItem';
 import Button from '../components/Button';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PERMISSIONS } from '../permissions/permission';
+import useAccess from '../hooks/useAccess';
 
 export const Position = () => {
   const dispatch = useDispatch();
@@ -19,6 +21,8 @@ export const Position = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
+
+  const { CanAccess } = useAccess()
 
   useEffect(() => {
     dispatch(getPositions());
@@ -96,15 +100,17 @@ export const Position = () => {
               Manage and track all your job positions in one place.
             </p>
           </div>
-          <div className="mt-4 md:mt-0">
-            <Link
-              to="/positions/new"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-              New Position
-            </Link>
-          </div>
+          <CanAccess permission={PERMISSIONS.CREATE_POSITIONS}>
+            <div className="mt-4 md:mt-0">
+              <Link
+                to="/positions/new"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+                New Position
+              </Link>
+            </div>
+          </CanAccess>
         </div>
 
         <div className="mb-6 bg-white shadow rounded-lg p-4">
@@ -176,13 +182,13 @@ export const Position = () => {
                           </h3>
                           <div className="flex items-center space-x-2">
                             <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                              position.status === 'Open' 
+                              position.status === 'open' 
                                 ? 'bg-green-100 text-green-800' 
-                                : 'bg-gray-100 text-gray-800'
+                                : 'bg-red-100 text-red-800'
                             }`}>
                               {position.status}
                             </span>
-                            {position.status === 'open' && (
+                            {/* {position.status === 'open' && (
                               <button
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -202,7 +208,7 @@ export const Position = () => {
                               >
                                 {status === 'loading' ? 'Applying...' : 'Apply'}
                               </button>
-                            )}
+                            )} */}
                           </div>
                         </div>
                         <p className="mt-2 text-gray-600 truncate w-full">

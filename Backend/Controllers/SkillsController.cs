@@ -18,6 +18,7 @@ namespace Backend.Controllers
             _skillService = skillService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetSkills()
         {
@@ -33,6 +34,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<SkillResponseDTO>> GetSkill(int id)
         {
@@ -51,6 +53,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "recruiter")]
         [HttpPost]
         public async Task<IActionResult> CreateSkill([FromBody] CreateSkillDTO createSkillDTO)
         {
@@ -67,6 +70,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "recruiter")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSkill(int id)
         {

@@ -9,6 +9,8 @@ import { NewPosition } from './pages/newPosition';
 import { SinglePosition } from './pages/singlePosition';
 import { ToastContainer } from 'react-toastify';
 import { NewSkill } from './pages/newSkill';
+import { ProtectedRoute } from './routes/protectedRoute';
+import { PERMISSIONS, ROLES } from './permissions/permission';
 
 
 function App() {
@@ -32,13 +34,33 @@ function App() {
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
           </Route>
+
+          {/* Positions */}
           <Route path='/positions'>
-            <Route index element={<Position />} />
-            <Route path="new" element={<NewPosition />} />
-            <Route path=":id" element={<SinglePosition />} />
+            <Route index element={
+              <ProtectedRoute permission={PERMISSIONS.READ_POSITIONS}>
+                <Position />
+              </ProtectedRoute>
+            } />
+            <Route path="new" element={
+              <ProtectedRoute roles={[ROLES.RECRUITER]} permission={PERMISSIONS.CREATE_POSITIONS}>
+                <NewPosition />
+              </ProtectedRoute>
+            } />
+            <Route path=":id" element={
+              <ProtectedRoute permission={PERMISSIONS.READ_POSITION}>
+                <SinglePosition />
+              </ProtectedRoute>
+            } />
           </Route>
+
+          {/* Skills */}
           <Route path='/skills'>
-            <Route path="new" element={<NewSkill />} />
+            <Route path="new" element={
+              <ProtectedRoute roles={[ROLES.RECRUITER]} permission={PERMISSIONS.CREATE_SKILL}>
+                <NewSkill />
+              </ProtectedRoute>
+            } />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSinglePosition, updatePosition } from '../features/positions/positionsApi';
+import { applyForPosition, getSinglePosition, updatePosition } from '../features/positions/positionsApi';
 import { selectSinglePosition, selectSinglePositionStatus, selectSinglePositionError, selectUpdateStatus } from '../features/positions/positionsSlice';
 import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
@@ -22,6 +22,8 @@ import {
 import { selectSkills, selectSkillsError, selectSkillsStatus } from '../features/skills/skillsSlice';
 import { getSkills } from '../features/skills/skillsApi';
 import { toast } from 'react-toastify';
+import useAccess from '../hooks/useAccess';
+import { PERMISSIONS } from '../permissions/permission';
 
 export const SinglePosition = () => {
   const { id } = useParams();
@@ -35,6 +37,7 @@ export const SinglePosition = () => {
   const skillsError = useSelector(selectSkillsError);
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState([]);
+  const { CanAccess } = useAccess()
 
 
   const handleSkillToggle = (skillId) => {
@@ -77,6 +80,12 @@ export const SinglePosition = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleApply = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(applyForPosition({ id: position.id }))
   };
 
   if (status === 'loading' || skillsStatus === 'loading') {
@@ -318,29 +327,33 @@ export const SinglePosition = () => {
             </Card>
 
             <Card className="p-6">
-              {position.status === 'open' && (
-                <Button className="w-full mb-4">
-                  Apply for This Position
-                </Button>
-              )}
-              <Button 
-                onClick={handleStatusChange}
-                variant="secondary"
-                className="w-full"
-                disabled={updateStatus === 'loading'}
-              >
-                {updateStatus === 'loading' ? (
-                  <>
-                    <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <ArrowPathIcon className="h-4 w-4 mr-2" />
-                    {position.status === 'open' ? 'Close Position' : 'Reopen Position'}
-                  </>
+              <CanAccess permission={PERMISSIONS.APPLY_POSITION}>
+                {position.status === 'open' && (
+                  <Button className="w-full mb-4" onClick={handleApply}>
+                    Apply for This Position
+                  </Button>
                 )}
-              </Button>
+              </CanAccess>
+              <CanAccess permission={PERMISSIONS.UPDATE_POSITIONS}>
+                <Button 
+                  onClick={handleStatusChange}
+                  variant="secondary"
+                  className="w-full"
+                  disabled={updateStatus === 'loading'}
+                >
+                  {updateStatus === 'loading' ? (
+                    <>
+                      <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowPathIcon className="h-4 w-4 mr-2" />
+                      {position.status === 'open' ? 'Close Position' : 'Reopen Position'}
+                    </>
+                  )}
+                </Button>
+              </CanAccess>
             </Card>
           </div>
         </div>

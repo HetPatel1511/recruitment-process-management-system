@@ -66,6 +66,7 @@ export const { logout, clearError } = authSlice.actions;
 
 export const selectCurrentUser = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectUserRole = (state) => state.auth.user?.role.name.toLowerCase();
 export const selectAuthStatus = (state) => state.auth.status;
 export const selectAuthError = (state) => state.auth.error;
 

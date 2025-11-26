@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -17,6 +17,8 @@ export const Login = () => {
   const navigate = useNavigate();
   const status = useSelector(selectAuthStatus);
   const isLoading = status === 'loading';
+  const location = useLocation()
+  const from = location.state?.from || '/positions';  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,7 +50,7 @@ export const Login = () => {
           email: formData.email,
           password: formData.password
         })).unwrap();
-        navigate('/positions');
+        navigate(from);
       } catch (error) {
         setErrors({
           ...formErrors,

@@ -126,14 +126,6 @@ namespace Backend.Services.Position
             _context.AuthPositions.Add(authPosition);
             await _context.SaveChangesAsync();
 
-            await _context.Entry(authPosition)
-                .Reference(ap => ap.User)
-                .LoadAsync();
-                
-            await _context.Entry(authPosition)
-                .Reference(ap => ap.Position)
-                .LoadAsync();
-
             return new PositionApplicationDTO
             {
                 Id = authPosition.Id,

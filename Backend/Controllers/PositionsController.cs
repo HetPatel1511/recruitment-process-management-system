@@ -9,7 +9,6 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class PositionsController : ControllerBase
     {
         private readonly IPositionService _positionService;
@@ -19,6 +18,7 @@ namespace Backend.Controllers
             _positionService = positionService;
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetPositions()
         {
@@ -34,6 +34,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "recruiter")]
         [HttpGet("my-positions")]
         public async Task<IActionResult> GetMyPositions()
         {
@@ -53,6 +54,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<PositionResponseDTO>> GetPosition(int id)
         {
@@ -71,6 +73,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "recruiter")]
         [HttpPost]
         public async Task<IActionResult> CreatePosition([FromBody] CreatePositionDTO createPositionDTO)
         {
@@ -93,6 +96,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "recruiter")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePosition(int id, UpdatePositionDTO updatePositionDTO)
         {
@@ -113,6 +117,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "recruiter")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePosition(int id)
         {
@@ -133,6 +138,7 @@ namespace Backend.Controllers
             }
         }
 
+        [Authorize(Roles = "candidate")]
         [HttpPost("apply/{id}")]
         public async Task<IActionResult> ApplyForPosition(int id)
         {
