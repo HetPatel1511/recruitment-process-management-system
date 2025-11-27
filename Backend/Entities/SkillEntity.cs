@@ -19,6 +19,10 @@ namespace Backend.Entities
         public string Description { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<PositionSkill> PositionSkills { get; set; }
+
+        public ICollection<UserSkill> UserSkills { get; set; }
     }
 }
 

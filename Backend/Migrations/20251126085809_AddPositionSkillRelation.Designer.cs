@@ -4,6 +4,7 @@ using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20251126085809_AddPositionSkillRelation")]
+    partial class AddPositionSkillRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,9 +42,19 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("PositionId1")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId1")
+                        .HasColumnType("int");
+
                     b.HasKey("UserId", "PositionId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("PositionId1");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("AuthPositions");
                 });
@@ -99,9 +112,19 @@ namespace Backend.Migrations
                     b.Property<int>("SkillId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PositionId1")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SkillId1")
+                        .HasColumnType("int");
+
                     b.HasKey("PositionId", "SkillId");
 
+                    b.HasIndex("PositionId1");
+
                     b.HasIndex("SkillId");
+
+                    b.HasIndex("SkillId1");
 
                     b.ToTable("PositionSkills");
                 });
@@ -193,10 +216,6 @@ namespace Backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("About")
-                        .HasMaxLength(5000)
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -204,14 +223,6 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Headline")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -238,34 +249,27 @@ namespace Backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Backend.Entities.UserSkill", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SkillId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "SkillId");
-
-                    b.HasIndex("SkillId");
-
-                    b.ToTable("UserSkills");
-                });
-
             modelBuilder.Entity("Backend.Entities.AuthPosition", b =>
                 {
                     b.HasOne("Backend.Entities.Position", "Position")
-                        .WithMany("AuthPositions")
+                        .WithMany()
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Backend.Entities.User", "User")
+                    b.HasOne("Backend.Entities.Position", null)
                         .WithMany("AuthPositions")
+                        .HasForeignKey("PositionId1");
+
+                    b.HasOne("Backend.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Backend.Entities.User", null)
+                        .WithMany("AuthPositions")
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Position");
 
@@ -286,16 +290,24 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Entities.PositionSkill", b =>
                 {
                     b.HasOne("Backend.Entities.Position", "Position")
-                        .WithMany("PositionSkills")
+                        .WithMany()
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Entities.Skill", "Skill")
+                    b.HasOne("Backend.Entities.Position", null)
                         .WithMany("PositionSkills")
+                        .HasForeignKey("PositionId1");
+
+                    b.HasOne("Backend.Entities.Skill", "Skill")
+                        .WithMany()
                         .HasForeignKey("SkillId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Backend.Entities.Skill", null)
+                        .WithMany("PositionSkills")
+                        .HasForeignKey("SkillId1");
 
                     b.Navigation("Position");
 
@@ -313,25 +325,6 @@ namespace Backend.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Backend.Entities.UserSkill", b =>
-                {
-                    b.HasOne("Backend.Entities.Skill", "Skill")
-                        .WithMany("UserSkills")
-                        .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Backend.Entities.User", "User")
-                        .WithMany("UserSkills")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Skill");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Backend.Entities.Position", b =>
                 {
                     b.Navigation("AuthPositions");
@@ -342,15 +335,11 @@ namespace Backend.Migrations
             modelBuilder.Entity("Backend.Entities.Skill", b =>
                 {
                     b.Navigation("PositionSkills");
-
-                    b.Navigation("UserSkills");
                 });
 
             modelBuilder.Entity("Backend.Entities.User", b =>
                 {
                     b.Navigation("AuthPositions");
-
-                    b.Navigation("UserSkills");
                 });
 #pragma warning restore 612, 618
         }

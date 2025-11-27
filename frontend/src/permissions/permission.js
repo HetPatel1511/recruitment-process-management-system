@@ -17,6 +17,7 @@ export const PERMISSIONS = {
 
   // Skills
   CREATE_SKILL: 'skills.create',
+  LINK_SKILLS_TO_POSITION: 'skills.link',
 }
 
 export default {
@@ -26,6 +27,7 @@ export default {
     PERMISSIONS.CREATE_POSITIONS,
     PERMISSIONS.UPDATE_POSITIONS,
     PERMISSIONS.CREATE_SKILL,
+    PERMISSIONS.LINK_SKILLS_TO_POSITION,
   ],
 
   [ROLES.HR]: [

@@ -34,14 +34,19 @@ namespace Backend.Services.Position
             return response;
         }
 
-        public async Task<PositionResponseDTO> GetPositionByIdAsync(int id)
+        public async Task<PositionResponseDTO> GetPositionByIdAsync(int id, int userId)
         {
             var position = await _context.Positions
                 .Include(p => p.Recruiter)
                 .ThenInclude(p => p.Role)
                 .FirstOrDefaultAsync(p => p.Id == id);
             
-            return _mapper.Map<PositionResponseDTO>(position);
+            var applied = await _context.AuthPositions
+                .FirstOrDefaultAsync(ap => ap.PositionId == id && ap.UserId == userId);
+            
+            var responsePosition = _mapper.Map<PositionResponseDTO>(position);
+            responsePosition.Applied = applied != null;
+            return responsePosition;
         }
 
         public async Task<IEnumerable<PositionResponseDTO>> GetAllPositionsAsync()

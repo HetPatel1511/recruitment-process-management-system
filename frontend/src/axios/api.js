@@ -19,4 +19,6 @@ export const API_URLS = {
     GET_SKILLS: "/skills",
     GET_SINGLE_SKILL: "/skills/:id",
     CREATE_SKILL: "/skills",
+    GET_POSITION_SKILLS: "/skills/position/:id",
+    ADD_SKILLS_TO_POSITION: "/skills/position/:id",
 };

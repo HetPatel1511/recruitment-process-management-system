@@ -8,10 +8,10 @@ import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import ErrorAlert from '../components/ErrorAlert';
-import { 
-  CalendarIcon, 
-  UserIcon, 
-  EnvelopeIcon, 
+import {
+  CalendarIcon,
+  UserIcon,
+  EnvelopeIcon,
   BriefcaseIcon,
   ClockIcon,
   CheckCircleIcon,
@@ -19,11 +19,12 @@ import {
   AcademicCapIcon,
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
-import { selectSkills, selectSkillsError, selectSkillsStatus } from '../features/skills/skillsSlice';
-import { getSkills } from '../features/skills/skillsApi';
+import { selectPositionSkills, selectPositionSkillsError, selectPositionSkillsStatus, selectSkills } from '../features/skills/skillsSlice';
+import { addSkillsToPosition, getPositionSkills, getSkills } from '../features/skills/skillsApi';
 import { toast } from 'react-toastify';
 import useAccess from '../hooks/useAccess';
 import { PERMISSIONS } from '../permissions/permission';
+import SkillSelectionModal from '../components/SkillSelectionModal';
 
 export const SinglePosition = () => {
   const { id } = useParams();
@@ -32,16 +33,20 @@ export const SinglePosition = () => {
   const status = useSelector(selectSinglePositionStatus);
   const error = useSelector(selectSinglePositionError);
   const updateStatus = useSelector(selectUpdateStatus);
-  const skillsRequired = useSelector(selectSkills);
-  const skillsStatus = useSelector(selectSkillsStatus);
-  const skillsError = useSelector(selectSkillsError);
+  const allSkills = useSelector(selectSkills);
+  const skillsRequired = useSelector(selectPositionSkills);
+  const skillsStatus = useSelector(selectPositionSkillsStatus);
+  const skillsError = useSelector(selectPositionSkillsError);
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
-  const [selectedSkills, setSelectedSkills] = useState([]);
-  const { CanAccess } = useAccess()
+  const [selectedSkills, setSelectedSkills] = useState(allSkills.filter(skill => skillsRequired.some(s => s.id === skill.id)).map(skill => skill.id));
+  const { CanAccess, hasPermission } = useAccess()
 
-
+  useEffect(() => {
+    setSelectedSkills(allSkills.filter(skill => skillsRequired.some(s => s.id === skill.id)).map(skill => skill.id));
+  }, [allSkills, skillsRequired])
+  
   const handleSkillToggle = (skillId) => {
-    setSelectedSkills(prev => 
+    setSelectedSkills(prev =>
       prev.includes(skillId)
         ? prev.filter(id => id !== skillId)
         : [...prev, skillId]
@@ -49,27 +54,27 @@ export const SinglePosition = () => {
   };
 
   const handleSaveSkills = () => {
-    console.log('Selected skills:', selectedSkills);
+    dispatch(addSkillsToPosition({ positionId: id, skillIds: selectedSkills }));
     setIsSkillModalOpen(false);
   };
 
   useEffect(() => {
     if (id) {
       dispatch(getSinglePosition({ id }));
-      dispatch(getSkills());
+      dispatch(getPositionSkills({ positionId: id }));
     }
   }, [dispatch, id]);
 
   const handleStatusChange = () => {
     if (!position) return;
-    
+
     const newStatus = position.status === 'open' ? 'closed' : 'open';
     const updateData = {
       id: position.id,
       status: newStatus,
       // ...(newStatus === 'closed' && { reasonForClosure: 'Closed by recruiter' })
     };
-    
+
     dispatch(updatePosition(updateData));
   };
 
@@ -171,105 +176,52 @@ export const SinglePosition = () => {
               </div>
             </Card>
 
-            {skillsRequired && skillsRequired.length > 0 && (
-              <Card className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">Skills Required</h2>
+            <Card className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Skills Required</h2>
+                <CanAccess permission={PERMISSIONS.LINK_SKILLS_TO_POSITION}>
                   <button
-                    onClick={() => setIsSkillModalOpen(true)}
+                    onClick={() => {
+                      dispatch(getSkills());
+                      setIsSkillModalOpen(true);
+                    }}
                     className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                   >
                     Edit Skills
                   </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {skillsRequired.map((skill, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
-                      title={skill?.description}
-                    >
-                      <AcademicCapIcon className="h-4 w-4 mr-1" />
-                      {skill?.name}
-                    </span>
-                  ))}
-                </div>
-              </Card>
-            )}
-
-            {/* Skills Selection Modal */}
-            {isSkillModalOpen && (
-              <div className="fixed inset-0 z-50 overflow-y-auto">
-                <div 
-                  className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-                  onClick={() => setIsSkillModalOpen(false)}
-                ></div>
-                <div className="flex min-h-full items-center justify-center p-4 text-center">
-                  <div className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                    <div className="absolute right-0 top-0 pr-4 pt-4">
-                      <button
-                        type="button"
-                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
-                        onClick={() => setIsSkillModalOpen(false)}
-                      >
-                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                      </button>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">
-                        Select Required Skills
-                      </h3>
-                      <div className="mt-4 max-h-96 overflow-y-auto">
-                        {skillsRequired && skillsRequired.length > 0 ? (
-                          <div className="space-y-2">
-                            {skillsRequired.map((skill) => (
-                              <div key={skill.id} className="flex items-start">
-                                <div className="flex h-5 items-center">
-                                  <input
-                                    id={`skill-${skill.id}`}
-                                    name="skill"
-                                    type="checkbox"
-                                    checked={selectedSkills.includes(skill.id)}
-                                    onChange={() => handleSkillToggle(skill.id)}
-                                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                  />
-                                </div>
-                                <div className="ml-3 text-sm">
-                                  <label htmlFor={`skill-${skill.id}`} className="font-medium text-gray-700">
-                                    {skill.name}
-                                  </label>
-                                  {skill.description && (
-                                    <p className="text-gray-500">{skill.description}</p>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-gray-500">No skills available</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-5 sm:mt-6 grid grid-cols-2 gap-3">
-                      <button
-                        type="button"
-                        className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
-                        onClick={() => setIsSkillModalOpen(false)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
-                        onClick={handleSaveSkills}
-                      >
-                        Save changes
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                </CanAccess>
               </div>
-            )}
+              {skillsRequired && skillsRequired.length > 0 ? (
+                <>
+                  <div className="flex flex-wrap gap-2">
+                    {skillsRequired.map((skill, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
+                        title={skill?.description}
+                      >
+                        <AcademicCapIcon className="h-4 w-4 mr-1" />
+                        {skill?.name}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p>No skills required</p>
+              )}
+            </Card>
+
+            <CanAccess permission={PERMISSIONS.LINK_SKILLS_TO_POSITION}>
+              <SkillSelectionModal
+                isOpen={isSkillModalOpen}
+                onClose={() => setIsSkillModalOpen(false)}
+                allSkills={allSkills}
+                selectedSkills={selectedSkills}
+                onSkillToggle={handleSkillToggle}
+                onSave={handleSaveSkills}
+                title="Select Required Skills"
+              />
+            </CanAccess>
 
             {position.status === 'closed' && position.reasonForClosure && (
               <Card className="p-6">
@@ -326,16 +278,30 @@ export const SinglePosition = () => {
               </div>
             </Card>
 
-            <Card className="p-6">
+            {((hasPermission(PERMISSIONS.APPLY_POSITION) && (position.applied || position.status === 'open' || (position.applied && position.status === 'closed'))) || hasPermission(PERMISSIONS.UPDATE_POSITIONS)) && <Card className="p-6">
               <CanAccess permission={PERMISSIONS.APPLY_POSITION}>
-                {position.status === 'open' && (
-                  <Button className="w-full mb-4" onClick={handleApply}>
-                    Apply for This Position
-                  </Button>
-                )}
+                
+                {!position.applied ?
+                  <>
+                    {position.status === 'open' && (
+                      <Button className="w-full" onClick={handleApply}>
+                        Apply for This Position
+                      </Button>)}
+                  </> :
+                  <div className="w-full p-3 bg-green-50 border border-green-100 rounded-md">
+                    <div className="flex items-center justify-center text-green-700 space-x-2">
+                      <CheckCircleIcon className="h-5 w-5" />
+                      <span className="font-medium">Application Submitted</span>
+                    </div>
+                    <p className="text-sm text-green-600 text-center mt-1">
+                      We've received your application.
+                    </p>
+                  </div>
+                }
+                
               </CanAccess>
               <CanAccess permission={PERMISSIONS.UPDATE_POSITIONS}>
-                <Button 
+                <Button
                   onClick={handleStatusChange}
                   variant="secondary"
                   className="w-full"
@@ -354,7 +320,7 @@ export const SinglePosition = () => {
                   )}
                 </Button>
               </CanAccess>
-            </Card>
+            </Card>}
           </div>
         </div>
       </main>

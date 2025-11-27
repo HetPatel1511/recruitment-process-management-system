@@ -15,6 +15,8 @@ namespace Backend.Data
         public DbSet<Position> Positions { get; set; }
         public DbSet<AuthPosition> AuthPositions { get; set; }
         public DbSet<Skill> Skills { get; set; }
+        public DbSet<PositionSkill> PositionSkills { get; set; }
+        public DbSet<UserSkill> UserSkills { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -49,14 +51,44 @@ namespace Backend.Data
 
             modelBuilder.Entity<AuthPosition>()
                 .HasOne(p => p.User)
-                .WithMany()
+                .WithMany(p => p.AuthPositions)
                 .HasForeignKey(ap => ap.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<AuthPosition>()
                 .HasOne(p => p.Position)
-                .WithMany()
+                .WithMany(p => p.AuthPositions)
                 .HasForeignKey(ap => ap.PositionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PositionSkill>()
+                .HasKey(ps => new { ps.PositionId, ps.SkillId });
+
+            modelBuilder.Entity<PositionSkill>()
+                .HasOne(ps => ps.Position)
+                .WithMany(p => p.PositionSkills)
+                .HasForeignKey(ps => ps.PositionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PositionSkill>()
+                .HasOne(ps => ps.Skill)
+                .WithMany(s => s.PositionSkills)
+                .HasForeignKey(ps => ps.SkillId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserSkill>()
+                .HasKey(us => new { us.UserId, us.SkillId });
+
+            modelBuilder.Entity<UserSkill>()
+                .HasOne(us => us.User)
+                .WithMany(u => u.UserSkills)
+                .HasForeignKey(us => us.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<UserSkill>()
+                .HasOne(us => us.Skill)
+                .WithMany(s => s.UserSkills)
+                .HasForeignKey(us => us.SkillId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
 

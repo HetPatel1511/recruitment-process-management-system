@@ -30,6 +30,17 @@ namespace Backend.Entities
 
         public virtual ICollection<AuthPosition>? AuthPositions { get; set; }
 
+        public virtual ICollection<UserSkill>? UserSkills { get; set; }
+
+        [StringLength(2000)]
+        public string? ImageUrl { get; set; }
+
+        [StringLength(1000)]
+        public string? Headline { get; set; }
+
+        [StringLength(5000)]
+        public string? About { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }

@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import { useNavigate } from 'react-router'
 import { FormInput } from '../components/FormInput'
 import { useDispatch } from 'react-redux'
+import { createSkill } from '../features/skills/skillsApi'
 
 export const NewSkill = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -39,7 +40,7 @@ export const NewSkill = () => {
     
     setIsSubmitting(true)
     try {
-      // await dispatch(createPosition(formData)).unwrap()
+      await dispatch(createSkill(formData)).unwrap()
       navigate('/positions')
     } catch (error) {
       setErrors({

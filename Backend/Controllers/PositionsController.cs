@@ -60,7 +60,8 @@ namespace Backend.Controllers
         {
             try
             {
-                var position = await _positionService.GetPositionByIdAsync(id);
+                var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+                var position = await _positionService.GetPositionByIdAsync(id, userId);
                 if (position == null)
                 {
                     return NotFound(new { success = false, message = "Position not found" });

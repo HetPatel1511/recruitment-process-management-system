@@ -30,6 +30,7 @@ namespace Backend.Entities
         public int? YearsOfExperienceRequired { get; set; }
         
         public virtual ICollection<AuthPosition>? AuthPositions { get; set; }
+        public virtual ICollection<PositionSkill>? PositionSkills { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

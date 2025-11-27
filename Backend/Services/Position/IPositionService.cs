@@ -6,7 +6,7 @@ namespace Backend.Services.Position
     public interface IPositionService
     {
         Task<PositionResponseDTO> CreatePositionAsync(CreatePositionDTO createPositionDTO, int recruiterId);
-        Task<PositionResponseDTO> GetPositionByIdAsync(int id);
+        Task<PositionResponseDTO> GetPositionByIdAsync(int id, int userId);
         Task<IEnumerable<PositionResponseDTO>> GetAllPositionsAsync();
         Task<IEnumerable<PositionResponseDTO>> GetPositionsByRecruiterIdAsync(int recruiterId);
         Task<PositionResponseDTO> UpdatePositionAsync(int id, UpdatePositionDTO updatePositionDTO, int recruiterId);

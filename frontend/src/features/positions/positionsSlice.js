@@ -69,6 +69,7 @@ const positionSlice = createSlice({
       })
       .addCase(applyForPosition.fulfilled, (state, action) => {
         state.appliedStatus = 'succeeded';
+        state.singlePosition.applied = true;
         toast.success(action.payload.message);
       })
       .addCase(applyForPosition.rejected, (state, action) => {
