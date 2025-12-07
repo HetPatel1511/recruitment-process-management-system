@@ -5,24 +5,60 @@ POST {{Backend_HostAddress}}/auth/register
 Content-Type: {{contentType}}
 
 {
-  "name": "John Doe",
-  "email": "john.doe66@example.com",
-  "password": "JohnDoe@123"
+  "name": "John Doe User",
+  "email": "recruiter@gmail.com",
+  "password": "Recruiter@123"
 }
+
+HTTP/1.1 200  - OK
+connection: close
+content-type: application/json; charset=utf-8
+date: Wed, 03 Dec 2025 07:34:59 GMT
+server: Kestrel
+transfer-encoding: chunked
 ###
 # @name login
 POST {{Backend_HostAddress}}/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "kevinpatel2383@gmail.com",
-  "password": "Kevin@123"
-  // "email": "john.doe66@example.com",
-  // "password": "JohnDoe@123"
+  "email": "recruiter@gmail.com",
+  "password": "Recruiter@123"
+  // "email": "candidate@gmail.com",
+  // "password": "Candidate@123"
 }
+
+HTTP/1.1 200  - OK
+connection: close
+content-type: application/json; charset=utf-8
+date: Wed, 03 Dec 2025 10:01:14 GMT
+server: Kestrel
+transfer-encoding: chunked
 ###
-@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNCIsImVtYWlsIjoia2V2aW5wYXRlbDIzODNAZ21haWwuY29tIiwicm9sZSI6IkNhbmRpZGF0ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsImp0aSI6IjE1OTdhNmYzLWRiNWQtNDhlZC1iNjg3LTJjOWEyYTRlMTVhMiIsImV4cCI6MTc2MzEwODE0MCwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo1MDQxIn0.VkaxNuH_8Leso1QVLzerIgbiqyKyc2jTVJgoVjQZB2s
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxNCIsImVtYWlsIjoia2V2aW5wYXRlbDIzODNAZ21haWwuY29tIiwicm9sZSI6IkNhbmRpZGF0ZSIsInRva2VuX3VzZSI6InJlZnJlc2giLCJqdGkiOiI0ZWMyMDViOS0zZTY3LTQwMzEtODZlNy05MDZiY2Q3YjVhMTEiLCJleHAiOjE3NjI5Mzg1NTAsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSJ9.g-vKlDF2lsap53O_iexITeYRiAd_7q7h2SfhYVAC3qw
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyNiIsImVtYWlsIjoicmVjcnVpdGVyQGdtYWlsLmNvbSIsInJvbGUiOiJjYW5kaWRhdGUiLCJ0b2tlbl91c2UiOiJhY2Nlc3MiLCJqdGkiOiI1Zjc2YjQ1Ni1jMTM3LTQzOGMtYjg0MS04ZmY3MzVlZmNkYzYiLCJleHAiOjE3NjQ3NTk2NzQsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6NTA0MSJ9.mepz8H6CzG61xd_KDyzRLSYJmh2ysFZYmLLTCDh6Cno
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMiIsImVtYWlsIjoicmVjcnVpdGVyQGdtYWlsLmNvbSIsInJvbGUiOiJyZWNydWl0ZXIiLCJ0b2tlbl91c2UiOiJyZWZyZXNoIiwianRpIjoiODU4ZTdlZjgtMGQyOC00NzRmLTgyNDEtYTYyM2I2MDIxMDlkIiwiZXhwIjoxNzY0MzE2NDc2LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwNDEiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjUwNDEifQ.eUP10ip1KTHTfLJEeNjI4LjYg3MGXg7O5bS44dyCVLo
+###
+PUT {{Backend_HostAddress}}/users/me
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="about"
+
+John Doe 12eww111111
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="imageFile"; filename="2.avif"
+Content-Type: image/jpeg
+
+< C:\Users\hetpa\OneDrive\Pictures\profile image\2.avif
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+HTTP/1.1 200  - OK
+connection: close
+content-type: application/json; charset=utf-8
+date: Wed, 03 Dec 2025 10:26:03 GMT
+server: Kestrel
+transfer-encoding: chunked
 ###
 POST {{Backend_HostAddress}}/auth/refresh
 Content-Type: {{contentType}}
@@ -30,44 +66,23 @@ Content-Type: {{contentType}}
 {
   "refreshToken": "{{refreshToken}}"
 }
-
-HTTP/1.1 200  - OK
-connection: close
-content-type: application/json; charset=utf-8
-date: Fri, 14 Nov 2025 07:15:40 GMT
-server: Kestrel
-transfer-encoding: chunked
 ###
 GET {{Backend_HostAddress}}/positions
 Authorization: Bearer {{authToken}}
 Accept: {{contentType}}
-
-HTTP/1.1 401  - Unauthorized
-content-length: 0
-connection: close
-date: Wed, 12 Nov 2025 10:29:05 GMT
-server: Kestrel
-www-authenticate: Bearer error="invalid_token", error_description="The token expired at '11/12/2025 07:34:41'"
 ###
 GET {{Backend_HostAddress}}/positions/my-positions
 Authorization: Bearer {{authToken}}
 Accept: {{contentType}}
 ###
-GET {{Backend_HostAddress}}/positions/1
+GET {{Backend_HostAddress}}/positions/173
 Authorization: Bearer {{authToken}}
 Accept: {{contentType}}
 ###
-POST {{Backend_HostAddress}}/positions/apply/18
+POST {{Backend_HostAddress}}/positions/apply/20
 Authorization: Bearer {{authToken}}
 Content-Type: {{contentType}}
 Accept: {{contentType}}
-
-HTTP/1.1 200  - OK
-connection: close
-content-type: application/json; charset=utf-8
-date: Fri, 14 Nov 2025 07:35:01 GMT
-server: Kestrel
-transfer-encoding: chunked
 ###
 POST {{Backend_HostAddress}}/positions
 Authorization: Bearer {{authToken}}
@@ -88,16 +103,48 @@ Content-Type: {{contentType}}
   "status": "closed",
   "reasonForClosure": "Position filled"
 }
-
-HTTP/1.1 200  - OK
-connection: close
-content-type: application/json; charset=utf-8
-date: Fri, 14 Nov 2025 07:26:52 GMT
-server: Kestrel
-transfer-encoding: chunked
 ###
 DELETE {{Backend_HostAddress}}/positions/7
 Authorization: Bearer {{authToken}}
 ###
-GET {{Backend_HostAddress}}/auth/getUsers
+# Get all skills
+GET {{Backend_HostAddress}}/skills
 Authorization: Bearer {{authToken}}
+Accept: {{contentType}}
+###
+# Get skill by ID
+GET {{Backend_HostAddress}}/skills/1
+Authorization: Bearer {{authToken}}
+Accept: {{contentType}}
+###
+# Create a new skill
+POST {{Backend_HostAddress}}/skills
+Authorization: Bearer {{authToken}}
+Content-Type: {{contentType}}
+
+{
+  "name": "New Skill",
+  "description": "Description of the new skill"
+}
+###
+# Delete a skill
+DELETE {{Backend_HostAddress}}/skills/1
+Authorization: Bearer {{authToken}}
+###
+GET {{Backend_HostAddress}}/skills/position/16
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+###
+POST {{Backend_HostAddress}}/skills/position/24
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+{
+  "skillIds": [3, 2]
+}
+###
+POST {{Backend_HostAddress}}/skills/user
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+{
+    "skillIds": [3]
+}

@@ -8,6 +8,10 @@ namespace Backend.DTOs.AuthDTOs
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public RoleDTO Role { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
+        public string Headline { get; set; } = string.Empty;
+        public string About { get; set; } = string.Empty;
+
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? AccessToken { get; set; }

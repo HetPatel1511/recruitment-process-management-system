@@ -27,7 +27,7 @@ namespace Backend.Services.Auth
 
     public async Task<UserResponseDTO> RegisterAsync(UserCreateDTO userDto)
     {
-      var user = new User
+      var user = new Entities.User
       {
         Name = userDto.Name,
         Email = userDto.Email,
