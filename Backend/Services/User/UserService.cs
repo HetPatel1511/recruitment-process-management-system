@@ -10,11 +10,13 @@ namespace Backend.Services.User
   {
     private readonly DataContext _context;
     private readonly IMapper _mapper;
+    private readonly IConfiguration _configuration;
 
-    public UserService(DataContext context, IMapper mapper)
+    public UserService(DataContext context, IMapper mapper, IConfiguration configuration)
     {
         _context = context;
         _mapper = mapper;
+        _configuration = configuration;
     }
     
     public async Task<UserResponseDTO> GetMyUserAsync(int id)
@@ -34,6 +36,12 @@ namespace Backend.Services.User
       if (user == null)
       {
         throw new Exception("User not found");
+      }
+
+      if (!string.IsNullOrEmpty(updateUserDTO.ImageUrl) && !updateUserDTO.ImageUrl.StartsWith("http"))
+      {
+        var baseUrl = _configuration["AppSettings:BaseUrl"];
+        updateUserDTO.ImageUrl = $"{baseUrl}/Resources/{updateUserDTO.ImageUrl}";
       }
 
       _mapper.Map(updateUserDTO, user);
