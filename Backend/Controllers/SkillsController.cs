@@ -116,7 +116,22 @@ namespace Backend.Controllers
         }
 
         [Authorize]
-        [HttpPost("user")]
+        [HttpGet("user/{id}")]
+        public async Task<IActionResult> GetUserSkills(int id)
+        {
+            try
+            {
+                var skills = await _skillService.GetUserSkillsAsync(id);
+                return Ok(new { success = true, message = "Skills retrieved successfully", data = skills });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPost("me")]
         public async Task<IActionResult> AddSkillsToUser([FromBody] AddSkillsToUserRequestDTO request)
         {
             try

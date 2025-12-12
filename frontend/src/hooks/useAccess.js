@@ -1,13 +1,18 @@
 import { useSelector } from "react-redux"
 import permissions from "../permissions/permission"
-import { selectUserRole } from "../features/auth/authSlice"
+import { selectCurrentUser, selectUserRole } from "../features/auth/authSlice"
 
 const useAccess = () => {
     const userRole = useSelector(selectUserRole)
+    const user = useSelector(selectCurrentUser)
+
+    const IsOwner = ({ownerId, children}) => {
+        return isOwner(ownerId) ? children : null
+    }
 
     const CanAccess = ({permission, children}) => {
         if(!permissions[userRole]) return null
-        if(permissions[userRole].includes(permission)) return children
+        if(permissions[userRole].includes(permission) || !permission) return children
         return null
     }
 
@@ -22,8 +27,14 @@ const useAccess = () => {
         if (permissions[userRole].includes(permission)) return true
         return false
     }
+
+    const isOwner = (ownerId) => {
+        if (!ownerId) return false
+        if (user?.id === ownerId) return true
+        return false
+    }
     
-    return { CanAccess, hasRoles, hasPermission }
+    return { CanAccess, hasRoles, hasPermission, IsOwner, isOwner }
 }
 
 export default useAccess

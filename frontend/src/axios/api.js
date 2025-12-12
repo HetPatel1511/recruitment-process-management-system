@@ -21,4 +21,11 @@ export const API_URLS = {
     CREATE_SKILL: "/skills",
     GET_POSITION_SKILLS: "/skills/position/:id",
     ADD_SKILLS_TO_POSITION: "/skills/position/:id",
+    GET_USER_SKILLS: "/skills/user/:id",
+    ADD_SKILLS_TO_USER: "/skills/me",
+
+    // User
+    GET_USERS: "/users",
+    GET_SINGLE_USER: "/users/:id",
+    UPDATE_USER: "/users/me",
 };

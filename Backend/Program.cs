@@ -86,7 +86,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-Console.WriteLine("Content root: " + builder.Environment.ContentRootPath);
 
 app.UseStaticFiles(new StaticFileOptions
 {

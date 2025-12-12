@@ -10,6 +10,7 @@ namespace Backend.Services.Skill
         Task<bool> DeleteSkillAsync(int id);
         Task<PositionSkillsResponseDTO> GetPositionSkillsAsync(int positionId);
         Task<PositionSkillsResponseDTO> AddSkillsToPositionAsync(List<int> skillIds, int positionId);
+        Task<UserSkillsResponseDTO> GetUserSkillsAsync(int userId);
         Task<UserSkillsResponseDTO> AddSkillsToUserAsync(List<int> skillIds, int userId);
     }
 }

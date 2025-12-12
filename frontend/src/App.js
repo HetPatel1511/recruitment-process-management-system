@@ -11,6 +11,7 @@ import { ToastContainer } from 'react-toastify';
 import { NewSkill } from './pages/newSkill';
 import { ProtectedRoute } from './routes/protectedRoute';
 import { PERMISSIONS, ROLES } from './permissions/permission';
+import UserProfile from './pages/userProfile';
 
 
 function App() {
@@ -59,6 +60,12 @@ function App() {
             <Route path="new" element={
               <ProtectedRoute roles={[ROLES.RECRUITER]} permission={PERMISSIONS.CREATE_SKILL}>
                 <NewSkill />
+              </ProtectedRoute>
+            } />
+          </Route>
+            <Route path=":id" element={
+              <ProtectedRoute>
+                <UserProfile />
               </ProtectedRoute>
             } />
           </Route>

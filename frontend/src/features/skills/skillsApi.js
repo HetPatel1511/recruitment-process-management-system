@@ -53,3 +53,29 @@ export const addSkillsToPosition = createAsyncThunk(
   }
 );
 
+export const getUserSkills = createAsyncThunk(
+  'skills/getUserSkills',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(API_URLS.GET_USER_SKILLS.replace(":id", data.userId));
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+);
+
+export const addSkillsToUser = createAsyncThunk(
+  'skills/addSkillsToUser',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(API_URLS.ADD_SKILLS_TO_USER, {
+        skillIds: data.skillIds
+      });
+      
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);

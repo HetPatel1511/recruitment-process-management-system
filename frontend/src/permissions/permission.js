@@ -17,7 +17,13 @@ export const PERMISSIONS = {
 
   // Skills
   CREATE_SKILL: 'skills.create',
-  LINK_SKILLS_TO_POSITION: 'skills.link',
+  LINK_SKILLS_TO_POSITION: 'skills.link.position',
+  LINK_SKILLS_TO_USER: 'skills.link.user',
+
+  // Users
+  READ_USERS: 'users.read',
+  READ_USER: 'user.read',
+  UPDATE_USER: 'user.update',
 }
 
 export default {
@@ -28,10 +34,12 @@ export default {
     PERMISSIONS.UPDATE_POSITIONS,
     PERMISSIONS.CREATE_SKILL,
     PERMISSIONS.LINK_SKILLS_TO_POSITION,
+    PERMISSIONS.UPDATE_USER,
   ],
 
   [ROLES.HR]: [
     PERMISSIONS.READ_POSITIONS,
+    PERMISSIONS.UPDATE_USER,
   ],
 
   [ROLES.INTERVIEWER]: [
@@ -43,12 +51,14 @@ export default {
   ],
 
   [ROLES.ADMIN]: [
-
+    PERMISSIONS.READ_USERS,
   ],
 
   [ROLES.CANDIDATE]: [
     PERMISSIONS.READ_POSITIONS,
     PERMISSIONS.READ_POSITION,
     PERMISSIONS.APPLY_POSITION,
+    PERMISSIONS.LINK_SKILLS_TO_USER,
+    PERMISSIONS.UPDATE_USER,
   ],
 }

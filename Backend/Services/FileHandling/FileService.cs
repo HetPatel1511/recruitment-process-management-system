@@ -28,8 +28,6 @@ namespace Backend.Services.FileHandling
       var fileNameWithPath = Path.Combine(path, fileName);
       using var stream = new FileStream(fileNameWithPath, FileMode.Create);
       await imageFile.CopyToAsync(stream);
-      Console.WriteLine("fileName0--=-=");
-      Console.WriteLine(fileName);
       return fileName;
     }
 

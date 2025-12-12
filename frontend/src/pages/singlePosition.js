@@ -25,6 +25,7 @@ import { toast } from 'react-toastify';
 import useAccess from '../hooks/useAccess';
 import { PERMISSIONS } from '../permissions/permission';
 import SkillSelectionModal from '../components/SkillSelectionModal';
+import SkillsCard from '../components/SkillsCard';
 
 export const SinglePosition = () => {
   const { id } = useParams();
@@ -176,39 +177,17 @@ export const SinglePosition = () => {
               </div>
             </Card>
 
-            <Card className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Skills Required</h2>
-                <CanAccess permission={PERMISSIONS.LINK_SKILLS_TO_POSITION}>
-                  <button
-                    onClick={() => {
-                      dispatch(getSkills());
-                      setIsSkillModalOpen(true);
-                    }}
-                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    Edit Skills
-                  </button>
-                </CanAccess>
-              </div>
-              {skillsRequired && skillsRequired.length > 0 ? (
-                <>
-                  <div className="flex flex-wrap gap-2">
-                    {skillsRequired.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
-                        title={skill?.description}
-                      >
-                        <AcademicCapIcon className="h-4 w-4 mr-1" />
-                        {skill?.name}
-                      </span>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <p>No skills required</p>
-              )}
+            <Card>
+              <SkillsCard
+                title="Skills Required"
+                skills={skillsRequired}
+                onEdit={() => {
+                  dispatch(getSkills());
+                  setIsSkillModalOpen(true);
+                }}
+                showEditButton={hasPermission(PERMISSIONS.LINK_SKILLS_TO_POSITION)}
+                noSkillsMessage="No skills required"
+              />
             </Card>
 
             <CanAccess permission={PERMISSIONS.LINK_SKILLS_TO_POSITION}>

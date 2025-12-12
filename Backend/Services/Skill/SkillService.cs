@@ -142,6 +142,29 @@ namespace Backend.Services.Skill
             };
         }
 
+        public async Task<UserSkillsResponseDTO> GetUserSkillsAsync(int userId)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(p => p.Id == userId);
+
+            if (user == null)
+                throw new Exception("User not found");
+
+            var skills = await _context.UserSkills
+                .Where(ps => ps.UserId == userId)
+                .Select(ps => ps.Skill)
+                .ToListAsync();
+
+            var skillsResponse = _mapper.Map<IEnumerable<SkillResponseDTO>>(skills);
+            var userResponse = _mapper.Map<UserResponseDTO>(user);
+
+            return new UserSkillsResponseDTO
+            {
+                User = userResponse,
+                Skills = skillsResponse
+            };
+        }
+
         public async Task<UserSkillsResponseDTO> AddSkillsToUserAsync(List<int> skillIds, int userId)
         {
             var user = await _context.Users

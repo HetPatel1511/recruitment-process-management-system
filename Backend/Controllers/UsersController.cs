@@ -22,8 +22,23 @@ namespace Backend.Controllers
     }
 
     [Authorize]
-    [HttpGet("me")]
-    public async Task<ActionResult<UserResponseDTO>> GetMyUser()
+    [HttpGet]
+    public async Task<ActionResult<List<UserResponseDTO>>> GetUsers()
+    {
+      try
+      {
+        var users = await _userService.GetUsersAsync();
+        return Ok(new { success = true, message = "Users retrieved successfully", data = users });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { success = false, message = ex.Message });
+      }
+    }
+
+    [Authorize]
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserResponseDTO>> GetUser(int id)
     {
       try
       {
@@ -33,7 +48,7 @@ namespace Backend.Controllers
           return Unauthorized(new { success = false, message = "Invalid user ID in token" });
         }
 
-        var user = await _userService.GetMyUserAsync(int.Parse(userId));
+        var user = await _userService.GetUserAsync(id);
         return Ok(new { success = true, message = "User retrieved successfully", data = user });
       }
       catch (Exception ex)
@@ -44,7 +59,7 @@ namespace Backend.Controllers
 
     [Authorize]
     [HttpPut("me")]
-    public async Task<ActionResult<UserResponseDTO>> UpdateMyUser(UpdateUserDTO updateUserDto)
+    public async Task<ActionResult<UserResponseDTO>> UpdateUser(UpdateUserDTO updateUserDto)
     {
       try
       {
@@ -60,13 +75,6 @@ namespace Backend.Controllers
           Headline = updateUserDto.Headline,
           About = updateUserDto.About
         };
-        Console.WriteLine("updateUserServiceDto");
-        Console.WriteLine(updateUserServiceDto.Name);
-        Console.WriteLine(updateUserServiceDto.Headline);
-        Console.WriteLine(updateUserServiceDto.About);
-        Console.WriteLine(updateUserDto.Name);
-        Console.WriteLine(updateUserDto.Headline);
-        Console.WriteLine(updateUserDto.About);
 
         if (updateUserDto.ImageFile != null)
         {
@@ -78,7 +86,7 @@ namespace Backend.Controllers
           updateUserServiceDto.ImageUrl = await _fileService.SaveFileAsync(updateUserDto.ImageFile, allowedFileExtensions);
         }
 
-        var user = await _userService.UpdateMyUserAsync(int.Parse(userId), updateUserServiceDto);
+        var user = await _userService.UpdateUserAsync(int.Parse(userId), updateUserServiceDto);
         return Ok(new { success = true, message = "User updated successfully", data = user });
       }
       catch (Exception ex)

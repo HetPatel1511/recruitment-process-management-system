@@ -5,7 +5,8 @@ namespace Backend.Services.User
 {
   public interface IUserService
   {
-    Task<UserResponseDTO> GetMyUserAsync(int id);
-    Task<UserResponseDTO> UpdateMyUserAsync(int id, UpdateUserServiceDTO updateUserDTO);
+    Task<List<UserResponseDTO>> GetUsersAsync();
+    Task<UserResponseDTO> GetUserAsync(int id);
+    Task<UserResponseDTO> UpdateUserAsync(int id, UpdateUserServiceDTO updateUserDTO);
   }
 }
