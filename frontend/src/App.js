@@ -12,6 +12,7 @@ import { NewSkill } from './pages/newSkill';
 import { ProtectedRoute } from './routes/protectedRoute';
 import { PERMISSIONS, ROLES } from './permissions/permission';
 import UserProfile from './pages/userProfile';
+import Users from './pages/users';
 
 
 function App() {
@@ -63,6 +64,12 @@ function App() {
               </ProtectedRoute>
             } />
           </Route>
+          <Route path='/users'>
+            <Route index element={
+              <ProtectedRoute permission={PERMISSIONS.READ_USERS}>
+                <Users />
+              </ProtectedRoute>
+            } />
             <Route path=":id" element={
               <ProtectedRoute>
                 <UserProfile />

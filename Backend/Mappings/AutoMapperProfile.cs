@@ -1,6 +1,7 @@
 using AutoMapper;
 using Backend.DTOs.AuthDTOs;
 using Backend.DTOs.PositionDTOs;
+using Backend.DTOs.RoleDTOs;
 using Backend.DTOs.SkillDTOs;
 using Backend.DTOs.UserDTOs;
 using Backend.Entities;
@@ -28,6 +29,9 @@ namespace Backend.Mappings
             // Skill mappings
             CreateMap<Skill, SkillResponseDTO>();
             CreateMap<CreateSkillDTO, Skill>();
+
+            // Role mappings
+            CreateMap<Role, RoleResponseDTO>();
         }
     }
 }

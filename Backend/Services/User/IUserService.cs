@@ -8,5 +8,7 @@ namespace Backend.Services.User
     Task<List<UserResponseDTO>> GetUsersAsync();
     Task<UserResponseDTO> GetUserAsync(int id);
     Task<UserResponseDTO> UpdateUserAsync(int id, UpdateUserServiceDTO updateUserDTO);
+    Task<UserResponseDTO> UpdateUserRoleAsync(int id, UpdateUserRoleDTO updateUserRoleDto);
+
   }
 }

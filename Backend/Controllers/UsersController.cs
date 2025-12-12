@@ -21,7 +21,7 @@ namespace Backend.Controllers
       _userService = userService;
     }
 
-    [Authorize]
+    [Authorize(Roles = "admin")]
     [HttpGet]
     public async Task<ActionResult<List<UserResponseDTO>>> GetUsers()
     {
@@ -87,6 +87,21 @@ namespace Backend.Controllers
         }
 
         var user = await _userService.UpdateUserAsync(int.Parse(userId), updateUserServiceDto);
+        return Ok(new { success = true, message = "User updated successfully", data = user });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { success = false, message = ex.Message });
+      }
+    }
+  
+    [Authorize(Roles = "admin")]
+    [HttpPut("{id}/role")]
+    public async Task<ActionResult<UserResponseDTO>> UpdateUserRole(int id, UpdateUserRoleDTO updateUserRoleDto)
+    {
+      try
+      {
+        var user = await _userService.UpdateUserRoleAsync(id, updateUserRoleDto);
         return Ok(new { success = true, message = "User updated successfully", data = user });
       }
       catch (Exception ex)
