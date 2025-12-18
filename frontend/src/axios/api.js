@@ -28,4 +28,8 @@ export const API_URLS = {
     GET_USERS: "/users",
     GET_SINGLE_USER: "/users/:id",
     UPDATE_USER: "/users/me",
+    CHANGE_USER_ROLE: "/users/:id/role",
+
+    // Role
+    GET_ROLES: "/roles",
 };

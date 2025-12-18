@@ -23,11 +23,12 @@ namespace Backend.Controllers
 
     [Authorize(Roles = "admin")]
     [HttpGet]
-    public async Task<ActionResult<List<UserResponseDTO>>> GetUsers()
+    public async Task<ActionResult<UserPaginationResponseDTO>> GetUsers([FromQuery] UserPaginationRequestDTO userPaginationRequestDTO)
     {
       try
       {
-        var users = await _userService.GetUsersAsync();
+        Console.WriteLine("userPaginationRequestDTO");
+        var users = await _userService.GetUsersAsync(userPaginationRequestDTO);
         return Ok(new { success = true, message = "Users retrieved successfully", data = users });
       }
       catch (Exception ex)

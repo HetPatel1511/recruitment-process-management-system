@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { getSingleUser, getUsers, updateUser } from "./usersApi";
+import { changeUserRole, getSingleUser, getUsers, updateUser } from "./usersApi";
 
 const initialState = {
   user: null,
@@ -26,10 +26,13 @@ const userSlice = createSlice({
       state.singleUserError = null;
       state.updateStatus = 'idle';
       state.updateError = null;
+      state.changeUserRoleStatus = 'idle';
+      state.changeUserRoleError = null;
     }
   },
   extraReducers: (builder) => {
     builder
+    // Get Users
     .addCase(getUsers.pending, (state) => {
       state.status = 'loading';
       state.error = null;
@@ -43,6 +46,8 @@ const userSlice = createSlice({
       state.status = 'failed';
       state.error = action.error.message;
     })
+
+    // Get Single User
     .addCase(getSingleUser.pending, (state) => {
       state.singleUserStatus = 'loading';
       state.singleUserError = null;
@@ -56,6 +61,8 @@ const userSlice = createSlice({
       state.singleUserStatus = 'failed';
       state.singleUserError = action.error.message;
     })
+    
+    // Update User
     .addCase(updateUser.pending, (state) => {
       state.updateStatus = 'loading';
       state.updateError = null;
@@ -71,12 +78,38 @@ const userSlice = createSlice({
       state.updateError = action.error.message;
       toast.error(action.payload);
     })
+
+    // Update User Role
+    .addCase(changeUserRole.pending, (state) => {
+      state.changeUserRoleStatus = 'loading';
+      state.changeUserRoleError = null;
+    })
+    .addCase(changeUserRole.fulfilled, (state, action) => {
+      state.changeUserRoleStatus = 'succeeded';
+
+      const index = state.user?.data?.findIndex(
+        user => user.id === action.payload.data.id
+      );
+      if (index !== -1) {
+        state.user.data[index] = action.payload.data;
+      }
+
+      state.changeUserRoleError = null;
+      toast.success(action.payload.message);
+    })
+    .addCase(changeUserRole.rejected, (state, action) => {
+      state.changeUserRoleStatus = 'failed';
+      state.changeUserRoleError = action.error.message;
+      toast.error(action.payload);
+    })
   }
 })
 
 export const { reset } = userSlice.actions;
 
-export const selectUsers = (state) => state.users.user;
+export const selectUsers = (state) => state.users.user?.data;
+export const selectUsersQueryParameters = (state) => state.users.user?.queryParameters;
+export const selectUsersPaginationMeta = (state) => state.users.user?.meta;
 export const selectUsersStatus = (state) => state.users.status;
 export const selectUsersError = (state) => state.users.error;
 

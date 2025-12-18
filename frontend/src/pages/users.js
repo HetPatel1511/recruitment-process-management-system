@@ -1,41 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useSearchParams } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navbar } from '../components/Navbar';
-import { MagnifyingGlassIcon, PencilIcon, TrashIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { getUsers } from '../features/users/usersApi';
-import { selectUsers, selectUsersStatus, selectUsersError } from '../features/users/usersSlice';
+import { ChevronDownIcon, ChevronUpIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { changeUserRole, getUsers } from '../features/users/usersApi';
+import { selectUsers, selectUsersStatus, selectUsersError, selectUsersQueryParameters, selectUsersPaginationMeta } from '../features/users/usersSlice';
 import ErrorAlert from '../components/ErrorAlert';
 import { toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToast.css';
-import { PERMISSIONS, ROLES } from '../permissions/permission';
+import { PERMISSIONS } from '../permissions/permission';
 import useAccess from '../hooks/useAccess';
 import placeholder from '../user-placeholder-image.png';
+import { getRoles } from '../features/roles/rolesApi';
+import { selectRoles } from '../features/roles/rolesSlice';
+import { Pagination } from '../components/Pagination';
 
 export const Users = () => {
   const dispatch = useDispatch();
   const users = useSelector(selectUsers);
+  const usersQueryParameters = useSelector(selectUsersQueryParameters);
+  const usersPaginationMeta = useSelector(selectUsersPaginationMeta);
   const status = useSelector(selectUsersStatus);
   const error = useSelector(selectUsersError);
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filter, setFilter] = useState('all');
+  const roles = useSelector(selectRoles);
+
+  const [searchParams, setSearchParams] = useSearchParams(new URLSearchParams(window.location.search));
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('s') || '');
+  const [debounceSearchTerm, setDebounceSearchTerm] = useState(searchParams.get('s') || '');
+  const [filter, setFilter] = useState(searchParams.get('r') || 'all');
   const [editingRole, setEditingRole] = useState(null);
+  const [sortBy, setSortBy] = useState(searchParams.get('sort') || "");
+  const [sortOrder, setSortOrder] = useState(searchParams.get('order') || "asc");
   const { CanAccess } = useAccess();
+  const isFirstRender = useRef(true);
+
 
   useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch]);
+    dispatch(getRoles());
+  }, [dispatch])
 
-  const filteredUsers = users?.filter(user => {
-    if (!user) return false;
-    const matchesSearch = 
-      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filter === 'all' || user.role?.name?.toLowerCase() === filter.toLowerCase();
-    return matchesSearch && matchesFilter;
-  });
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebounceSearchTerm(searchTerm)
+    }, 600)
+
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  useEffect(() => {
+    dispatch(getUsers({
+      pageNumber: searchParams.get('p') || 1,
+      pageSize: searchParams.get('i') || 10,
+      search: searchParams.get('s'),
+      roleId: searchParams.get('r') === 'all' ? null : searchParams.get('r'),
+      sortBy: searchParams.get('sort'),
+      sortOrder: searchParams.get('order')
+    }));
+  }, [dispatch, searchParams]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    setSearchParams((prevParams) => {
+      prevParams.set('p', 1);
+      prevParams.set('s', debounceSearchTerm);
+      prevParams.set('r', filter);
+      prevParams.set('sort', sortBy);
+      prevParams.set('order', sortOrder);
+      return prevParams;
+    });
+  }, [debounceSearchTerm, filter, sortBy, sortOrder]);
+
+  // const filteredUsers = users?.filter(user => {
+  //   if (!user) return false;
+  //   const matchesSearch =
+  //     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     user.role?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesFilter = filter === 'all' || user.role?.id == filter;
+  //   return matchesSearch && matchesFilter;
+  // });
 
   const handleDelete = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
@@ -48,11 +95,15 @@ export const Users = () => {
     }
   };
 
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      toast.success('Role updated successfully');
-    } catch (error) {
-      toast.error(error.message || 'Failed to update role');
+  const handleRoleChange = async (user, newRole) => {
+    const role = roles.find(role => role.id == newRole);
+    if (window.confirm(`Are you sure you want to update ${user.name}'s role to ${role.name}?`)) {
+      try {
+        await dispatch(changeUserRole({ userId: user.id, roleId: role.id })).unwrap();
+        toast.success('Role updated successfully');
+      } catch (error) {
+        toast.error(error.message || 'Failed to update role');
+      }
     }
   };
 
@@ -65,34 +116,34 @@ export const Users = () => {
     });
   };
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === 'failed') {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <ErrorAlert message={error || 'Failed to load users. Please try again later.'} />
-        </div>
-      </div>
-    );
+  const handleSort = (sortByValue) => {
+    if (sortOrder === 'asc' && sortBy == sortByValue) {
+      setSortOrder('desc');
+    } else if (sortOrder === 'desc' && sortBy == sortByValue) {
+      setSortBy('');
+      setSortOrder('asc');
+    } else {
+      setSortBy(sortByValue);
+      setSortOrder('asc');
+    }
   }
 
   return (
     <div className="min-h-screen">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* {status === 'loading' && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+          </div>
+        )} */}
+
+        {status === 'failed' && (
+          <div className="mb-6">
+            <ErrorAlert message={error || 'Failed to load users. Please try again later.'} />
+          </div>
+        )}
+
         <div className="md:flex md:items-center md:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
@@ -138,9 +189,9 @@ export const Users = () => {
                   onChange={(e) => setFilter(e.target.value)}
                 >
                   <option value="all">All Roles</option>
-                  {Object.values(ROLES).map(role => (
-                    <option key={role} value={role.toLowerCase()}>
-                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                  {roles.map(role => (
+                    <option key={role.id} value={role.id}>
+                      {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -148,33 +199,37 @@ export const Users = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {status === 'loading' ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+          ) : status === 'succeeded' && <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <TH scope="col">
                     #
                   </TH>
-                  <TH scope="col">
+                  <TH sortOrder={sortOrder} isSorted={sortBy == "name"} onClick={() => handleSort('name')} scope="col">
                     User
                   </TH>
-                  <TH scope="col">
+                  <TH sortOrder={sortOrder} isSorted={sortBy == "email"} onClick={() => handleSort('email')} scope="col">
                     Email
                   </TH>
-                  <TH scope="col">
+                  <TH sortOrder={sortOrder} isSorted={sortBy == "role"} onClick={() => handleSort('role')} scope="col">
                     Role
                   </TH>
-                  <TH scope="col">
+                  <TH sortOrder={sortOrder} isSorted={sortBy == "createdAt"} onClick={() => handleSort('createdAt')} scope="col">
                     Created At
                   </TH>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers && filteredUsers.length > 0 ? (
-                  filteredUsers.map((user, index) => (
+                {users && users.length > 0 ? (
+                  users.map((user, index) => (
                     <tr key={user.id} className="hover:bg-gray-50">
                       <TD>
-                        {index + 1}
+                        {index + usersPaginationMeta?.startIndex}
                       </TD>
                       <TD>
                         <Link to={`/users/${user.id}`} className="flex items-center">
@@ -197,32 +252,32 @@ export const Users = () => {
                       <TD className="w-48">
                         {editingRole === user.id ? (
                           <select
+                            name='role'
                             className="block px-3 py-1 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border"
-                            onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                            onChange={(e) => handleRoleChange(user, e.target.value)}
                             onBlur={() => setEditingRole(null)}
                             autoFocus
                           >
-                            {Object.values(ROLES).map(role => (
-                              <option key={role} value={role} selected={user.role.name.toLowerCase() === role.toLowerCase()}>
-                                {role.charAt(0).toUpperCase() + role.slice(1)}
+                            {roles.map(role => (
+                              <option key={role.id} value={role.id} selected={user.role.id === role.id}>
+                                {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
                               </option>
                             ))}
                           </select>
                         ) : (
-                          <span 
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer ${
-                              user.role.name.toLowerCase() === 'admin' 
-                                ? 'bg-purple-100 text-purple-800 hover:bg-purple-200' 
-                                : user.role.name.toLowerCase() === 'hr'
+                          <span
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full cursor-pointer ${user.role.name.toLowerCase() === 'admin'
+                              ? 'bg-purple-100 text-purple-800 hover:bg-purple-200'
+                              : user.role.name.toLowerCase() === 'hr'
                                 ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                                 : user.role.name.toLowerCase() === 'recruiter'
-                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                : user.role.name.toLowerCase() === 'interviewer'
-                                ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                                : user.role.name.toLowerCase() === 'reviewer'
-                                ? 'bg-pink-100 text-pink-800 hover:bg-pink-200'
-                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                            }`}
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                  : user.role.name.toLowerCase() === 'interviewer'
+                                    ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                                    : user.role.name.toLowerCase() === 'reviewer'
+                                      ? 'bg-pink-100 text-pink-800 hover:bg-pink-200'
+                                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                              }`}
                             onClick={() => setEditingRole(user.id)}
                           >
                             {user.role.name}
@@ -241,7 +296,7 @@ export const Users = () => {
                         <UserCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
                         <h3 className="mt-2 text-sm font-medium text-gray-900">No users found</h3>
                         <p className="mt-1 text-sm text-gray-500">
-                          {searchTerm || filter !== 'all' 
+                          {searchTerm || filter !== 'all'
                             ? 'No users match your search criteria. Try adjusting your search or filter.'
                             : 'Get started by creating a new user.'}
                         </p>
@@ -251,17 +306,41 @@ export const Users = () => {
                 )}
               </tbody>
             </table>
-          </div>
+          </div>}
         </div>
+        <Pagination
+          className='mt-8'
+          itemName={"users"}
+          defaultPage={usersPaginationMeta?.pageNumber ? usersPaginationMeta?.pageNumber : (searchParams.get('p') ? searchParams.get('p') : 1)}
+          defaultItemsPerPage={usersPaginationMeta?.pageSize ? usersPaginationMeta?.pageSize : (searchParams.get('i') ? searchParams.get('i') : 10)}
+          totalPages={usersPaginationMeta?.totalPages}
+          pagesToShow={5}
+          startItem={usersPaginationMeta?.startIndex}
+          endItem={usersPaginationMeta?.endIndex}
+          totalItems={usersPaginationMeta?.totalCount}
+          // onChange={handlePaginationChange}
+          itemsPerPageOptions={[5, 10, 20, 50, 100]}
+        />
       </main>
     </div>
   );
 };
 
-const TH = ({ className, children, ...props }) => {
+const TH = ({ className, isSorted, sortOrder, onClick, children, ...props }) => {
+  const handleClick = () => {
+    onClick?.();
+  }
   return (
-    <th scope="col" className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`} {...props}>
-      {children}
+    <th scope="col" onClick={handleClick} className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer ${className}`} {...props}>
+      <div className='flex items-center gap-2'>
+        {children}
+        {onClick && isSorted && <>
+          {sortOrder=="asc" ? 
+            <ChevronUpIcon className='w-4 h-4' /> :
+            <ChevronDownIcon className='w-4 h-4' />
+          }
+        </>}
+      </div>
     </th>
   );
 };
