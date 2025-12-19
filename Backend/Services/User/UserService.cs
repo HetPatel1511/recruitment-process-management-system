@@ -3,6 +3,7 @@ using Backend.Data;
 using Backend.DTOs.AuthDTOs;
 using Backend.DTOs.PaginationDTOs;
 using Backend.DTOs.UserDTOs;
+using Backend.Services.Excel;
 using Backend.Services.FileHandling;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,13 +15,15 @@ namespace Backend.Services.User
     private readonly IMapper _mapper;
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
+    private readonly IExcelService _excelService;
 
-    public UserService(DataContext context, IMapper mapper, IConfiguration configuration, IFileService fileService)
+    public UserService(DataContext context, IMapper mapper, IConfiguration configuration, IFileService fileService, IExcelService excelService)
     {
       _context = context;
       _mapper = mapper;
       _configuration = configuration;
       _fileService = fileService;
+      _excelService = excelService;
     }
 
     public async Task<UserPaginationResponseDTO> GetUsersAsync(UserPaginationRequestDTO userPaginationRequestDTO)
@@ -29,8 +32,8 @@ namespace Backend.Services.User
 
       if (!string.IsNullOrEmpty(userPaginationRequestDTO.Search))
       {
-        query = query.Where(u => 
-          u.Name.ToLower().Contains(userPaginationRequestDTO.Search.ToLower()) || 
+        query = query.Where(u =>
+          u.Name.ToLower().Contains(userPaginationRequestDTO.Search.ToLower()) ||
           u.Email.ToLower().Contains(userPaginationRequestDTO.Search.ToLower()) ||
           u.Role.Name.ToLower().Contains(userPaginationRequestDTO.Search.ToLower())
         );
@@ -156,6 +159,57 @@ namespace Backend.Services.User
 
       // var responseUser = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id==id);
       return _mapper.Map<UserResponseDTO>(user);
+    }
+
+    public async Task<BulkUploadUserResponseDTO> BulkUploadUsersAsync(BulkUploadUserServiceDTO bulkUploadUserServiceDTO)
+    {
+      var users = _excelService.Read<BulkUploadUserDTO>(bulkUploadUserServiceDTO.FilePath);
+      var alreadyExists = new List<string>();
+      var newUsers = new List<string>();
+      var failedToUpload = new List<string>();
+      foreach (var user in users)
+      {
+        if (
+          string.IsNullOrEmpty(user.Name) ||
+          string.IsNullOrEmpty(user.Email) ||
+          alreadyExists.Contains(user.Email) ||
+          newUsers.Contains(user.Email)
+        )
+        {
+          failedToUpload.Add(user.Email);
+          continue;
+        }
+
+        var newUser = new Entities.User
+        {
+          Name = user.Name,
+          Email = user.Email,
+        };
+
+        var userExists = await _context.Users.AnyAsync(u => u.Email == user.Email);
+        if (userExists)
+        {
+          alreadyExists.Add(user.Email);
+          continue;
+        }
+        await _context.Users.AddAsync(newUser);
+        newUsers.Add(newUser.Email);
+      }
+
+      await _context.SaveChangesAsync();
+
+      var dbUsers = await _context.Users
+          .Where(u => newUsers.Contains(u.Email))
+          .Include(u => u.Role)
+          .ToListAsync();
+
+      var response = new BulkUploadUserResponseDTO
+      {
+        AlreadyExists = alreadyExists,
+        NewUsers = _mapper.Map<List<UserResponseDTO>>(dbUsers),
+        FailedToUpload = failedToUpload
+      };
+      return response;
     }
   }
 }

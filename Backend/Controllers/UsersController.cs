@@ -27,7 +27,6 @@ namespace Backend.Controllers
     {
       try
       {
-        Console.WriteLine("userPaginationRequestDTO");
         var users = await _userService.GetUsersAsync(userPaginationRequestDTO);
         return Ok(new { success = true, message = "Users retrieved successfully", data = users });
       }
@@ -84,7 +83,7 @@ namespace Backend.Controllers
               return StatusCode(StatusCodes.Status400BadRequest, "File size should not exceed 1 MB");
           }
           string[] allowedFileExtensions = [".jpg", ".jpeg", ".png", ".avif"];
-          updateUserServiceDto.ImageUrl = await _fileService.SaveFileAsync(updateUserDto.ImageFile, allowedFileExtensions);
+          updateUserServiceDto.ImageUrl = await _fileService.SaveFileAsync(updateUserDto.ImageFile, allowedFileExtensions, "Uploads");
         }
 
         var user = await _userService.UpdateUserAsync(int.Parse(userId), updateUserServiceDto);
@@ -104,6 +103,35 @@ namespace Backend.Controllers
       {
         var user = await _userService.UpdateUserRoleAsync(id, updateUserRoleDto);
         return Ok(new { success = true, message = "User updated successfully", data = user });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { success = false, message = ex.Message });
+      }
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpPost("bulk-upload")]
+    public async Task<ActionResult<UserResponseDTO>> BulkUploadUsers(BulkUploadUserRequestDTO bulkUploadUserRequestDTO)
+    {
+      try
+      {
+        if (bulkUploadUserRequestDTO.File == null)
+        {
+          return BadRequest(new { success = false, message = "File is required" });
+        }
+
+        string[] allowedFileExtensions = [".csv", ".xlsx", ".xls"];
+        string uploadPath = "Uploads/BulkUpload";
+        var bulkUploadFile = await _fileService.SaveFileAsync(bulkUploadUserRequestDTO.File, allowedFileExtensions, uploadPath);
+
+        var bulkUploadUserServiceDTO = new BulkUploadUserServiceDTO
+        {
+          FilePath = $"{uploadPath}/{bulkUploadFile}"
+        };
+
+        var users = await _userService.BulkUploadUsersAsync(bulkUploadUserServiceDTO);
+        return Ok(new { success = true, message = "Users uploaded successfully", data = users });
       }
       catch (Exception ex)
       {

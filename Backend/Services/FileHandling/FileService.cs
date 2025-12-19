@@ -3,7 +3,7 @@ namespace Backend.Services.FileHandling
   public class FileService(IWebHostEnvironment environment) : IFileService
   {
 
-    public async Task<string> SaveFileAsync(IFormFile imageFile, string[] allowedFileExtensions)
+    public async Task<string> SaveFileAsync(IFormFile imageFile, string[] allowedFileExtensions, string uploadPath="Uploads")
     {
       if (imageFile == null)
       {
@@ -11,7 +11,7 @@ namespace Backend.Services.FileHandling
       }
 
       var contentPath = environment.ContentRootPath;
-      var path = Path.Combine(contentPath, "Uploads");
+      var path = Path.Combine(contentPath, uploadPath);
 
       if (!Directory.Exists(path))
       {

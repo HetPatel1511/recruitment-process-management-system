@@ -8,8 +8,6 @@ export const getUsers = createAsyncThunk(
   "users/getUsers",
   async (data, { rejectWithValue }) => {
     try {
-      console.log(data);
-      
       const response = await axios.get(API_URLS.GET_USERS, {
         params: data
       });

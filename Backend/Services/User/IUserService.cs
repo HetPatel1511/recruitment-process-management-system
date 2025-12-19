@@ -9,6 +9,7 @@ namespace Backend.Services.User
     Task<UserResponseDTO> GetUserAsync(int id);
     Task<UserResponseDTO> UpdateUserAsync(int id, UpdateUserServiceDTO updateUserDTO);
     Task<UserResponseDTO> UpdateUserRoleAsync(int id, UpdateUserRoleDTO updateUserRoleDto);
+    Task<BulkUploadUserResponseDTO> BulkUploadUsersAsync(BulkUploadUserServiceDTO bulkUploadUserServiceDTO);
 
   }
 }

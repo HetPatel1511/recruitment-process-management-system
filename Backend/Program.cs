@@ -14,6 +14,7 @@ using Backend.Services.User;
 using Backend.Services.FileHandling;
 using Microsoft.Extensions.FileProviders;
 using Backend.Services.Role;
+using Backend.Services.Excel;
 
 // Load .env file
 Env.Load();
@@ -67,6 +68,7 @@ builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IExcelService, ExcelService>();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
