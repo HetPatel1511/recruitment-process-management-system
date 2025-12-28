@@ -1,8 +1,11 @@
 using AutoMapper;
 using Backend.Data;
 using Backend.DTOs.AuthDTOs;
+using Backend.DTOs.EmailDTOs;
 using Backend.DTOs.PaginationDTOs;
 using Backend.DTOs.UserDTOs;
+using Backend.Entities;
+using Backend.Services.Email;
 using Backend.Services.Excel;
 using Backend.Services.FileHandling;
 using Microsoft.EntityFrameworkCore;
@@ -16,14 +19,18 @@ namespace Backend.Services.User
     private readonly IConfiguration _configuration;
     private readonly IFileService _fileService;
     private readonly IExcelService _excelService;
+    private readonly IEmailService _emailService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(DataContext context, IMapper mapper, IConfiguration configuration, IFileService fileService, IExcelService excelService)
+    public UserService(DataContext context, IMapper mapper, IConfiguration configuration, IFileService fileService, IExcelService excelService, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
     {
       _context = context;
       _mapper = mapper;
       _configuration = configuration;
       _fileService = fileService;
       _excelService = excelService;
+      _emailService = emailService;
+      _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<UserPaginationResponseDTO> GetUsersAsync(UserPaginationRequestDTO userPaginationRequestDTO)
@@ -166,25 +173,23 @@ namespace Backend.Services.User
       var users = _excelService.Read<BulkUploadUserDTO>(bulkUploadUserServiceDTO.FilePath);
       var alreadyExists = new List<string>();
       var newUsers = new List<string>();
-      var failedToUpload = new List<string>();
+      var failedToUpload = new List<FailedUploadDTO>();
       foreach (var user in users)
       {
-        if (
-          string.IsNullOrEmpty(user.Name) ||
-          string.IsNullOrEmpty(user.Email) ||
-          alreadyExists.Contains(user.Email) ||
-          newUsers.Contains(user.Email)
-        )
+        
+        if (string.IsNullOrEmpty(user.Name))
         {
-          failedToUpload.Add(user.Email);
+          failedToUpload.Add(new FailedUploadDTO { Email = user.Email, Reason = "Name is required" });
+          continue;
+        } else if (string.IsNullOrEmpty(user.Email))
+        {
+          failedToUpload.Add(new FailedUploadDTO { Email = user.Email, Reason = "Email is required" });
+          continue;
+        } else if (newUsers.Contains(user.Email))
+        {
+          failedToUpload.Add(new FailedUploadDTO { Email = user.Email, Reason = "Email already exists" });
           continue;
         }
-
-        var newUser = new Entities.User
-        {
-          Name = user.Name,
-          Email = user.Email,
-        };
 
         var userExists = await _context.Users.AnyAsync(u => u.Email == user.Email);
         if (userExists)
@@ -192,8 +197,32 @@ namespace Backend.Services.User
           alreadyExists.Add(user.Email);
           continue;
         }
+        var inviteToken = Guid.NewGuid().ToString();
+        var newUser = new Entities.User
+        {
+          Name = user.Name,
+          Email = user.Email,
+          Status = UserStatus.Invited,
+          InviteTokenHash = BCrypt.Net.BCrypt.HashPassword(inviteToken),
+          InviteExpiresAt = DateTime.UtcNow.AddDays(10)
+        };
         await _context.Users.AddAsync(newUser);
         newUsers.Add(newUser.Email);
+        
+        var origin = _httpContextAccessor.HttpContext.Request.Headers.Origin;
+        var emailBody = $@"
+        <h1>Welcome to HiringHub!</h1>
+        <p>You have been invited to join HiringHub.</p>
+        <p>Please click the link below to activate your account.</p>
+        <p><a href='{origin}/activate?token={inviteToken}'>Activate Account</a></p>
+        ";
+        
+        _emailService.SendEmailAsync(new EmailDTO { 
+            Email = user.Email,
+            Name = user.Name,
+            Subject = "Account Invitation", 
+            Body = emailBody
+        });
       }
 
       await _context.SaveChangesAsync();

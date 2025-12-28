@@ -154,7 +154,7 @@ export const Users = () => {
           <CanAccess permission={PERMISSIONS.CREATE_USERS}>
             <div className="mt-4 md:mt-0">
               <Link
-                to="/users/new"
+                to="/users/bulk-upload"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Add New User

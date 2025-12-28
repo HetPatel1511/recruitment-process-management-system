@@ -15,6 +15,8 @@ using Backend.Services.FileHandling;
 using Microsoft.Extensions.FileProviders;
 using Backend.Services.Role;
 using Backend.Services.Excel;
+using Backend.Services.Email;
+using Backend.DTOs.MailSettingsDTOs;
 
 // Load .env file
 Env.Load();
@@ -58,8 +60,12 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<MailSettingsDTO>(builder.Configuration.GetSection("MailSettings"));
 
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -69,6 +75,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

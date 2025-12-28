@@ -12,7 +12,7 @@ export const Navbar = ({ logo = 'HiringHub' }) => {
   const dispatch = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const user = useSelector(selectCurrentUser);
-  const { hasPermission } = useAccess()
+  const { hasPermission, hasRoles } = useAccess()
   
   const logoutUser = () => {
     dispatch(logout());
@@ -39,6 +39,12 @@ export const Navbar = ({ logo = 'HiringHub' }) => {
               </>
             ) : (
               <>
+                {hasRoles(['admin']) && <Link 
+                  to="/users"
+                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium flex items-center"
+                >
+                  <UserIcon className="h-4 w-4 mr-1" /> Users
+                </Link>}
                 {hasPermission(PERMISSIONS.READ_POSITIONS) && <Link 
                   to="/positions" 
                   className="text-gray-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium flex items-center"

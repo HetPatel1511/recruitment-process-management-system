@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { changeUserRole, getSingleUser, getUsers, updateUser } from "./usersApi";
+import { bulkUploadUsers, changeUserRole, getSingleUser, getUsers, updateUser } from "./usersApi";
 
 const initialState = {
   user: null,
@@ -11,6 +11,9 @@ const initialState = {
   singleUserError: null,
   updateStatus: 'idle',
   updateError: null,
+  bulkUploadData: null,
+  bulkUploadStatus: 'idle',
+  bulkUploadError: null,
 }
 
 const userSlice = createSlice({
@@ -102,6 +105,23 @@ const userSlice = createSlice({
       state.changeUserRoleError = action.error.message;
       toast.error(action.payload);
     })
+    
+    // Bulk Upload Users
+    .addCase(bulkUploadUsers.pending, (state) => {
+      state.bulkUploadStatus = 'loading';
+      state.bulkUploadError = null;
+    })
+    .addCase(bulkUploadUsers.fulfilled, (state, action) => {
+      state.bulkUploadStatus = 'succeeded';
+      state.bulkUploadData = action.payload.data;
+      state.bulkUploadError = null;
+      toast.success(action.payload.message);
+    })
+    .addCase(bulkUploadUsers.rejected, (state, action) => {
+      state.bulkUploadStatus = 'failed';
+      state.bulkUploadError = action.error.message;
+      toast.error(action.payload);
+    })
   }
 })
 
@@ -119,5 +139,9 @@ export const selectSingleUserError = (state) => state.users.singleUserError;
 
 export const selectUserUpdateStatus = (state) => state.users.updateStatus;
 export const selectUserUpdateError = (state) => state.users.updateError;
+
+export const selectBulkUploadStatus = (state) => state.users.bulkUploadStatus;
+export const selectBulkUploadError = (state) => state.users.bulkUploadError;
+export const selectBulkUploadData = (state) => state.users.bulkUploadData;
 
 export default userSlice.reducer;

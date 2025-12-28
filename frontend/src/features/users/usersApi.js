@@ -66,3 +66,19 @@ export const changeUserRole = createAsyncThunk(
     }
   }
 )
+
+export const bulkUploadUsers = createAsyncThunk(
+  "users/bulkUploadUsers",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(API_URLS.BULK_UPLOAD_USERS, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+)

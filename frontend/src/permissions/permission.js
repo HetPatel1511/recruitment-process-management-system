@@ -24,6 +24,7 @@ export const PERMISSIONS = {
   READ_USERS: 'users.read',
   READ_USER: 'user.read',
   UPDATE_USER: 'user.update',
+  UPLOAD_USERS: 'users.upload',
 }
 
 export default {
@@ -52,6 +53,7 @@ export default {
 
   [ROLES.ADMIN]: [
     PERMISSIONS.READ_USERS,
+    PERMISSIONS.UPLOAD_USERS,
   ],
 
   [ROLES.CANDIDATE]: [

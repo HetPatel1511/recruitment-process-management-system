@@ -13,6 +13,7 @@ import { ProtectedRoute } from './routes/protectedRoute';
 import { PERMISSIONS, ROLES } from './permissions/permission';
 import UserProfile from './pages/userProfile';
 import Users from './pages/users';
+import { BulkUploadUsers } from './pages/bulkUploadUsers';
 
 
 function App() {
@@ -73,6 +74,11 @@ function App() {
             <Route path=":id" element={
               <ProtectedRoute>
                 <UserProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="bulk-upload" element={
+              <ProtectedRoute permission={PERMISSIONS.UPLOAD_USERS}>
+                <BulkUploadUsers />
               </ProtectedRoute>
             } />
           </Route>

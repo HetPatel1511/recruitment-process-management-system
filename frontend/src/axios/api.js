@@ -29,6 +29,7 @@ export const API_URLS = {
     GET_SINGLE_USER: "/users/:id",
     UPDATE_USER: "/users/me",
     CHANGE_USER_ROLE: "/users/:id/role",
+    BULK_UPLOAD_USERS: "/users/bulk-upload",
 
     // Role
     GET_ROLES: "/roles",
