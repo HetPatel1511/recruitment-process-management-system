@@ -38,5 +38,19 @@ namespace Backend.Controllers
       var response = await _authService.RefreshAsync(refreshDto);
       return Ok(response);
     }
+
+    [HttpPost("activate")]
+    public async Task<ActionResult<string>> Activate(ActivateDTO activateDto)
+    {
+      try
+      {
+        var response = await _authService.ActivateAsync(activateDto);
+        return Ok(new {success = true, message = response});
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new {success = false, message = ex.Message});
+      }
+    }
   }
 }

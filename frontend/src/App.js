@@ -14,6 +14,7 @@ import { PERMISSIONS, ROLES } from './permissions/permission';
 import UserProfile from './pages/userProfile';
 import Users from './pages/users';
 import { BulkUploadUsers } from './pages/bulkUploadUsers';
+import { Activate } from './pages/activate';
 
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <Route path='/auth'>
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="activate" element={<Activate />} />
           </Route>
 
           {/* Positions */}

@@ -8,6 +8,7 @@ using Backend.Entities;
 using Backend.Services.Email;
 using Backend.Services.Excel;
 using Backend.Services.FileHandling;
+using Backend.Services.HashHelper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Services.User
@@ -21,8 +22,9 @@ namespace Backend.Services.User
     private readonly IExcelService _excelService;
     private readonly IEmailService _emailService;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHashHelperService _hashHelperService;
 
-    public UserService(DataContext context, IMapper mapper, IConfiguration configuration, IFileService fileService, IExcelService excelService, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+    public UserService(DataContext context, IMapper mapper, IConfiguration configuration, IFileService fileService, IExcelService excelService, IEmailService emailService, IHttpContextAccessor httpContextAccessor, IHashHelperService hashHelperService)
     {
       _context = context;
       _mapper = mapper;
@@ -31,6 +33,7 @@ namespace Backend.Services.User
       _excelService = excelService;
       _emailService = emailService;
       _httpContextAccessor = httpContextAccessor;
+      _hashHelperService = hashHelperService;
     }
 
     public async Task<UserPaginationResponseDTO> GetUsersAsync(UserPaginationRequestDTO userPaginationRequestDTO)
@@ -202,11 +205,20 @@ namespace Backend.Services.User
         {
           Name = user.Name,
           Email = user.Email,
-          Status = UserStatus.Invited,
-          InviteTokenHash = BCrypt.Net.BCrypt.HashPassword(inviteToken),
-          InviteExpiresAt = DateTime.UtcNow.AddDays(10)
+          Status = UserStatus.Invited
         };
+        
+        // Create the invitation token
+        var token = new Token
+        {
+          User = newUser,
+          TokenHash = _hashHelperService.ComputeHash(inviteToken),
+          Type = TokenType.Invite,
+          ExpiresAt = DateTime.UtcNow.AddDays(10)
+        };
+        
         await _context.Users.AddAsync(newUser);
+        await _context.Tokens.AddAsync(token);
         newUsers.Add(newUser.Email);
         
         var origin = _httpContextAccessor.HttpContext.Request.Headers.Origin;
@@ -214,7 +226,7 @@ namespace Backend.Services.User
         <h1>Welcome to HiringHub!</h1>
         <p>You have been invited to join HiringHub.</p>
         <p>Please click the link below to activate your account.</p>
-        <p><a href='{origin}/activate?token={inviteToken}'>Activate Account</a></p>
+        <p><a href='{origin}/auth/activate?token={inviteToken}'>Activate Account</a></p>
         ";
         
         _emailService.SendEmailAsync(new EmailDTO { 

@@ -7,6 +7,7 @@ namespace Backend.Services.Auth
     Task<UserResponseDTO> RegisterAsync(UserCreateDTO userDto);
     Task<UserResponseDTO> LoginAsync(UserLoginDTO userDto);
     Task<RefreshDTO> RefreshAsync(RefreshDTO refreshDto);
+    Task<string> ActivateAsync(ActivateDTO activateDto);
   }
 }
 

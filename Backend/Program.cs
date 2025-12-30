@@ -17,6 +17,8 @@ using Backend.Services.Role;
 using Backend.Services.Excel;
 using Backend.Services.Email;
 using Backend.DTOs.MailSettingsDTOs;
+using Backend.Services.HashHelper;
+using Microsoft.AspNetCore.Mvc;
 
 // Load .env file
 Env.Load();
@@ -67,6 +69,22 @@ builder.Services.AddDbContext<DataContext>(options =>
 
 builder.Services.Configure<MailSettingsDTO>(builder.Configuration.GetSection("MailSettings"));
 
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage);
+
+        return new BadRequestObjectResult(new
+        {
+            success = false,
+            message = string.Join(", ", errors)
+        });
+    };
+});
+
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
@@ -76,6 +94,7 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IExcelService, ExcelService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IHashHelperService, HashHelperService>();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
+using Backend.Services.HashHelper;
 
 namespace Backend.Services.Auth
 {
@@ -17,12 +18,14 @@ namespace Backend.Services.Auth
     private readonly IConfiguration _configuration;
     private readonly DataContext _context;
     private readonly IMapper _mapper;
+    private readonly IHashHelperService _hashHelperService;
 
-    public AuthService(IConfiguration configuration, DataContext context, IMapper mapper)
+    public AuthService(IConfiguration configuration, DataContext context, IMapper mapper, IHashHelperService hashHelperService)
     {
       _configuration = configuration;
       _context = context;
       _mapper = mapper;
+      _hashHelperService = hashHelperService;
     }
 
     public async Task<UserResponseDTO> RegisterAsync(UserCreateDTO userDto)
@@ -31,7 +34,8 @@ namespace Backend.Services.Auth
       {
         Name = userDto.Name,
         Email = userDto.Email,
-        Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password)
+        Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password),
+        Status = UserStatus.Active
       };
       
       var userExists = await _context.Users
@@ -41,7 +45,7 @@ namespace Backend.Services.Auth
       {
         throw new Exception("User with this email already exists");
       }
-
+      user.EmailVerifiedAt = DateTime.UtcNow;
       _context.Users.Add(user);
       await _context.SaveChangesAsync();
       user = await _context.Users
@@ -66,6 +70,11 @@ namespace Backend.Services.Auth
       if (user == null)
       {
         throw new Exception("User not found");
+      }
+      
+      if (user.Status != UserStatus.Active)
+      {
+        throw new Exception("Account is inactive.");
       }
 
       if (!BCrypt.Net.BCrypt.Verify(userDto.Password, user.Password))
@@ -114,6 +123,11 @@ namespace Backend.Services.Auth
         throw new Exception("User not found");
       }
 
+      if (user.Status != UserStatus.Active)
+      {
+        throw new Exception("Account is inactive.");
+      }
+
       var payload = new Dictionary<string, object>
       {
         { JwtRegisteredClaimNames.Sub, user.Id },
@@ -130,6 +144,33 @@ namespace Backend.Services.Auth
         AccessToken = accessToken,
         RefreshToken = refreshToken
       };
+    }
+
+    public async Task<string> ActivateAsync(ActivateDTO activateDto)
+    {
+      var hashedToken = _hashHelperService.ComputeHash(activateDto.Token);
+      
+      var token = await _context.Tokens
+          .Include(t => t.User)
+          .FirstOrDefaultAsync(t => t.TokenHash == hashedToken && 
+                                t.Type == TokenType.Invite && 
+                                t.ExpiresAt > DateTime.UtcNow &&
+                                t.UsedAt == null);
+
+      if (token == null || token.User == null)
+      {
+        throw new Exception("Invalid or expired token");
+      }
+
+      var user = token.User;
+      user.Password = BCrypt.Net.BCrypt.HashPassword(activateDto.Password);
+      user.EmailVerifiedAt = DateTime.UtcNow;
+      user.Status = UserStatus.Active;
+      
+      token.UsedAt = DateTime.UtcNow;
+      
+      await _context.SaveChangesAsync();
+      return "Account activated successfully";
     }
 
     public string CreateToken(Dictionary<string, object> payload, int expireMinutes, string tokenUse)

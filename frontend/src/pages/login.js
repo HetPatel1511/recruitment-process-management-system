@@ -18,7 +18,7 @@ export const Login = () => {
   const status = useSelector(selectAuthStatus);
   const isLoading = status === 'loading';
   const location = useLocation()
-  const from = location.state?.from || '/positions';  
+  const from = location.state?.from || '/';  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

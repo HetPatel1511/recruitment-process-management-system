@@ -17,6 +17,7 @@ namespace Backend.Data
         public DbSet<Skill> Skills { get; set; }
         public DbSet<PositionSkill> PositionSkills { get; set; }
         public DbSet<UserSkill> UserSkills { get; set; }
+        public DbSet<Token> Tokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -90,6 +91,12 @@ namespace Backend.Data
                 .WithMany(s => s.UserSkills)
                 .HasForeignKey(us => us.SkillId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Token>()
+                .HasOne(t => t.User)
+                .WithMany(u => u.Tokens)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

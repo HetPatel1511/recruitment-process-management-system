@@ -5,6 +5,7 @@ export const API_URLS = {
     REGISTER_USER: "/auth/register",
     LOGIN_USER: "/auth/login",
     REFRESH_TOKEN: "/auth/refresh",
+    ACTIVATE_ACCOUNT: "/auth/activate",
 
     // Position
     GET_POSITIONS: "/positions",

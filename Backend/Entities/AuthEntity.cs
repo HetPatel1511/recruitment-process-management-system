@@ -40,9 +40,19 @@ namespace Backend.Entities
 
         [StringLength(5000)]
         public string? About { get; set; }
+        public UserStatus Status { get; set; } = UserStatus.Active;
+        public virtual ICollection<Token>? Tokens { get; set; }
+        public DateTime? EmailVerifiedAt { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? UpdatedAt { get; set; }
+    }
+
+    public enum UserStatus
+    {
+        Active = 1,
+        Invited = 2,
+        Disabled = 3
     }
 }
