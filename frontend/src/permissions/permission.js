@@ -14,6 +14,7 @@ export const PERMISSIONS = {
   CREATE_POSITIONS: 'positions.create',
   APPLY_POSITION: 'positions.apply',
   UPDATE_POSITIONS: 'positions.update',
+  READ_POSITION_APPLICANTS: 'positions.applicants.read',
 
   // Skills
   CREATE_SKILL: 'skills.create',
@@ -36,6 +37,7 @@ export default {
     PERMISSIONS.CREATE_SKILL,
     PERMISSIONS.LINK_SKILLS_TO_POSITION,
     PERMISSIONS.UPDATE_USER,
+    PERMISSIONS.READ_POSITION_APPLICANTS,
   ],
 
   [ROLES.HR]: [
@@ -52,8 +54,11 @@ export default {
   ],
 
   [ROLES.ADMIN]: [
+    PERMISSIONS.READ_POSITIONS,
+    PERMISSIONS.READ_POSITION,
     PERMISSIONS.READ_USERS,
     PERMISSIONS.UPLOAD_USERS,
+    // PERMISSIONS.READ_POSITION_APPLICANTS,
   ],
 
   [ROLES.CANDIDATE]: [

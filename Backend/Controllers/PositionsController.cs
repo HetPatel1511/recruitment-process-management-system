@@ -159,5 +159,26 @@ namespace Backend.Controllers
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
+        [Authorize(Roles = "recruiter")]
+        [HttpGet("{positionId}/applications")]
+        public async Task<IActionResult> GetPositionApplications(int positionId)
+        {
+            try
+            {
+                var RecruiterId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(RecruiterId))
+                {
+                    return Unauthorized(new { success = false, message = "Invalid user ID in token" });
+                }
+
+                var result = await _positionService.GetPositionApplicantsAsync(positionId, int.Parse(RecruiterId));
+                return Ok(new { success = true, message = "Applicants retrieved successfully", data = result });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

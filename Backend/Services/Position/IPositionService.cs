@@ -12,5 +12,6 @@ namespace Backend.Services.Position
         Task<PositionResponseDTO> UpdatePositionAsync(int id, UpdatePositionDTO updatePositionDTO, int recruiterId);
         Task<bool> DeletePositionAsync(int id, int recruiterId);
         Task<PositionApplicationDTO> ApplyForPositionAsync(int positionId, int userId);
+        Task<PositionApplicantsResponseDTO> GetPositionApplicantsAsync(int positionId, int recruiterId);
     }
 }

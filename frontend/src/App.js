@@ -15,6 +15,7 @@ import UserProfile from './pages/userProfile';
 import Users from './pages/users';
 import { BulkUploadUsers } from './pages/bulkUploadUsers';
 import { Activate } from './pages/activate';
+import { PositionApplicants } from './pages/positionApplicants';
 
 
 function App() {
@@ -45,6 +46,11 @@ function App() {
             <Route index element={
               <ProtectedRoute permission={PERMISSIONS.READ_POSITIONS}>
                 <Position />
+              </ProtectedRoute>
+            } />
+            <Route path=":positionId/applicants" element={
+              <ProtectedRoute permission={PERMISSIONS.READ_POSITION_APPLICANTS}>
+                <PositionApplicants />
               </ProtectedRoute>
             } />
             <Route path="new" element={

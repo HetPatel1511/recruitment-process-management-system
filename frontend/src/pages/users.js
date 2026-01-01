@@ -14,6 +14,7 @@ import placeholder from '../user-placeholder-image.png';
 import { getRoles } from '../features/roles/rolesApi';
 import { selectRoles } from '../features/roles/rolesSlice';
 import { Pagination } from '../components/Pagination';
+import { UserImage } from '../components/UserImage';
 
 export const Users = () => {
   const dispatch = useDispatch();
@@ -234,11 +235,7 @@ export const Users = () => {
                       <TD>
                         <Link to={`/users/${user.id}`} className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
-                            {user.imageUrl ? (
-                              <img className="h-10 w-10 rounded-full" src={user.imageUrl} alt={user.name} />
-                            ) : (
-                              <img className="h-10 w-10 rounded-full" src={placeholder} alt={user.name} />
-                            )}
+                            <UserImage className="h-10 w-10 rounded-full" src={user.imageUrl} alt={user.name} />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{user.name}</div>

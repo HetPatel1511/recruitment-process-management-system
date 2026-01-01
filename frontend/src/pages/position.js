@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navbar } from '../components/Navbar';
-import { FunnelIcon, MagnifyingGlassIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon, MagnifyingGlassIcon, PlusIcon, UserIcon } from '@heroicons/react/24/outline';
 import { applyForPosition, getPositions } from '../features/positions/positionsApi';
 import { selectPositions, selectPositionStatus, selectPositionError } from '../features/positions/positionsSlice';
 import ErrorAlert from '../components/ErrorAlert';
@@ -22,7 +22,7 @@ export const Position = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
 
-  const { CanAccess } = useAccess()
+  const { CanAccess, IsOwner } = useAccess()
 
   useEffect(() => {
     dispatch(getPositions());
@@ -181,6 +181,20 @@ export const Position = () => {
                             {position.title}
                           </h3>
                           <div className="flex items-center space-x-2">
+                            <IsOwner ownerId={position.recruiterId}>
+                              <CanAccess permission={PERMISSIONS.READ_POSITION_APPLICANTS}>
+                                <Button
+                                  to={`/positions/${position.id}/applicants`}
+                                  variant="ghost"
+                                  size="xs"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-xs"
+                                >
+                                  <UserIcon className="h-3 w-3 mr-1" />
+                                  View Applicants
+                                </Button>
+                              </CanAccess>
+                            </IsOwner>
                             <span className={`px-3 py-1 text-xs font-medium rounded-full ${
                               position.status === 'open' 
                                 ? 'bg-green-100 text-green-800' 

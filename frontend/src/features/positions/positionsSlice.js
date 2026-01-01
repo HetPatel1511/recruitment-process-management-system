@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 const initialState = {
   positions: [],
   singlePosition: null,
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle',
   error: null,
   appliedStatus: 'idle',
   appliedError: null,

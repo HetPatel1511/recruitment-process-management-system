@@ -40,12 +40,12 @@ export const SinglePosition = () => {
   const skillsError = useSelector(selectPositionSkillsError);
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
   const [selectedSkills, setSelectedSkills] = useState(allSkills.filter(skill => skillsRequired.some(s => s.id === skill.id)).map(skill => skill.id));
-  const { CanAccess, hasPermission } = useAccess()
+  const { CanAccess, hasPermission, IsOwner } = useAccess()
 
   useEffect(() => {
     setSelectedSkills(allSkills.filter(skill => skillsRequired.some(s => s.id === skill.id)).map(skill => skill.id));
   }, [allSkills, skillsRequired])
-  
+
   const handleSkillToggle = (skillId) => {
     setSelectedSkills(prev =>
       prev.includes(skillId)
@@ -137,7 +137,7 @@ export const SinglePosition = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <Navbar />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-8">
           <Link
@@ -146,7 +146,7 @@ export const SinglePosition = () => {
           >
             ← Back to Positions
           </Link>
-          
+
           <Card className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -156,7 +156,7 @@ export const SinglePosition = () => {
                     {position.status === 'open' ? <CheckCircleIcon className="h-5 w-5 text-green-500" /> : <XCircleIcon className="h-5 w-5 text-red-500" />}
                     <span className="ml-1">{position.status}</span>
                   </span>
-                  {position.yearsOfExperienceRequired!==null && (
+                  {position.yearsOfExperienceRequired !== null && (
                     <div className="flex items-center text-sm text-gray-500">
                       <BriefcaseIcon className="h-4 w-4 mr-1" />
                       {position.yearsOfExperienceRequired}+ years experience
@@ -257,9 +257,9 @@ export const SinglePosition = () => {
               </div>
             </Card>
 
-            {((hasPermission(PERMISSIONS.APPLY_POSITION) && (position.applied || position.status === 'open' || (position.applied && position.status === 'closed'))) || hasPermission(PERMISSIONS.UPDATE_POSITIONS)) && <Card className="p-6">
+            {((hasPermission(PERMISSIONS.APPLY_POSITION) && (position.applied || position.status === 'open' || (position.applied && position.status === 'closed'))) || hasPermission(PERMISSIONS.UPDATE_POSITIONS) || hasPermission(PERMISSIONS.READ_POSITION_APPLICANTS)) &&
+            <Card className="p-6 space-y-4">
               <CanAccess permission={PERMISSIONS.APPLY_POSITION}>
-                
                 {!position.applied ?
                   <>
                     {position.status === 'open' && (
@@ -277,7 +277,6 @@ export const SinglePosition = () => {
                     </p>
                   </div>
                 }
-                
               </CanAccess>
               <CanAccess permission={PERMISSIONS.UPDATE_POSITIONS}>
                 <Button
@@ -299,6 +298,18 @@ export const SinglePosition = () => {
                   )}
                 </Button>
               </CanAccess>
+              <IsOwner ownerId={position.recruiterId}>
+                <CanAccess permission={PERMISSIONS.READ_POSITION_APPLICANTS}>
+                  <Button
+                    to={`/positions/${position.id}/applicants`}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    <UserIcon className="h-4 w-4 mr-2" />
+                    View Applicants
+                  </Button>
+                </CanAccess>
+              </IsOwner>
             </Card>}
           </div>
         </div>

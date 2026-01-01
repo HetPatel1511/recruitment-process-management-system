@@ -139,5 +139,37 @@ namespace Backend.Services.Position
                 AppliedAt = authPosition.AppliedAt
             };
         }
+
+        public async Task<PositionApplicantsResponseDTO> GetPositionApplicantsAsync(int positionId, int recruiterId)
+        {
+            var position = await _context.Positions
+                .Include(p => p.Recruiter)
+                .FirstOrDefaultAsync(p => p.Id == positionId && p.RecruiterId == recruiterId);
+
+            if (position == null)
+            {
+                throw new Exception("Position not found or you are not the recruiter for this position");
+            }
+
+            var applicants = await _context.AuthPositions
+                .Where(ap => ap.PositionId == positionId)
+                .Include(ap => ap.User)
+                    .ThenInclude(u => u.Role)
+                .OrderBy(ap => ap.AppliedAt)
+                .Select(ap => new UserApplicantResponseDTO {
+                    Id = ap.Id,
+                    Name = ap.User.Name,
+                    Email = ap.User.Email,
+                    ImageUrl = ap.User.ImageUrl,
+                    AppliedAt = ap.AppliedAt
+                })
+                .ToListAsync();
+
+            return new PositionApplicantsResponseDTO
+            {
+                Position = _mapper.Map<PositionResponseDTO>(position),
+                Applicants = applicants
+            };
+        }
     }
 }

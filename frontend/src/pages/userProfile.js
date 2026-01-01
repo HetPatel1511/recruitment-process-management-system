@@ -16,6 +16,7 @@ import SkillsCard from '../components/SkillsCard';
 import SkillSelectionModal from '../components/SkillSelectionModal';
 import { selectSkills, selectUserSkills } from '../features/skills/skillsSlice';
 import EditUserFormModal from '../components/EditUserFormModal';
+import { UserImage } from '../components/UserImage';
 
 const UserProfile = () => {
   const { id: userId } = useParams();
@@ -105,9 +106,9 @@ const UserProfile = () => {
               <Card className="p-6">
                 <div className="relative flex flex-col md:flex-row gap-6">
                   <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                    <img
+                    <UserImage
                       className="w-full h-full object-cover"
-                      src={singleUser?.imageUrl ? singleUser?.imageUrl : userPlaceholderImage}
+                      src={singleUser?.imageUrl}
                       alt={singleUser?.name}
                     />
                   </div>

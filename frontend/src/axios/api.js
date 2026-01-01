@@ -15,6 +15,7 @@ export const API_URLS = {
     UPDATE_POSITION: "/positions/:id",
     DELETE_POSITION: "/positions/:id",
     APPLY_FOR_POSITION: "/positions/apply/:id",
+    GET_POSITION_APPLICANTS: "/positions/:positionId/applications",
 
     // Skill
     GET_SKILLS: "/skills",
