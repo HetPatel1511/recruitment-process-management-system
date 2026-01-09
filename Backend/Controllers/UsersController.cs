@@ -138,5 +138,36 @@ namespace Backend.Controllers
         return BadRequest(new { success = false, message = ex.Message });
       }
     }
+  
+    [Authorize]
+    [HttpPost("me/cv")]
+    public async Task<ActionResult<UploadCvResultDTO>> UploadCV(IFormFile file)
+    {
+      try
+      {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+          return Unauthorized(new { success = false, message = "User not authenticated" });
+        }
+
+
+        if (file == null)
+        {
+          return BadRequest(new { success = false, message = "CV file is required" });
+        }
+        
+        string[] allowedFileExtensions = [".pdf"];
+        var cvPath = await _fileService.SaveFileAsync(file, allowedFileExtensions, "Uploads/UserCV");
+        
+        var data = await _userService.UploadCVAsync(cvPath, int.Parse(userId));
+        return Ok(new { success = true, message = "CV uploaded successfully", data });
+      }
+      catch (Exception ex)
+      {
+        return BadRequest(new { success = false, message = ex.Message });
+      }
+    }
+
   }
 }

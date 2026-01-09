@@ -11,6 +11,7 @@ namespace Backend.DTOs.AuthDTOs
         public string ImageUrl { get; set; } = string.Empty;
         public string Headline { get; set; } = string.Empty;
         public string About { get; set; } = string.Empty;
+        public string CvPath { get; set; } = string.Empty;
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 

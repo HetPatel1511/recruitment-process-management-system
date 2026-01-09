@@ -157,10 +157,11 @@ namespace Backend.Services.Position
                     .ThenInclude(u => u.Role)
                 .OrderBy(ap => ap.AppliedAt)
                 .Select(ap => new UserApplicantResponseDTO {
-                    Id = ap.Id,
+                    Id = ap.User.Id,
                     Name = ap.User.Name,
                     Email = ap.User.Email,
                     ImageUrl = ap.User.ImageUrl,
+                    CvPath = ap.User.CvPath,
                     AppliedAt = ap.AppliedAt
                 })
                 .ToListAsync();

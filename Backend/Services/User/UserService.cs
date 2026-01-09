@@ -252,5 +252,33 @@ namespace Backend.Services.User
       };
       return response;
     }
+
+    
+    public async Task<UploadCvResultDTO> UploadCVAsync(string filePath, int userId)
+    {
+      var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+      if (user == null)
+      {
+        throw new Exception("User not found");
+      }
+      
+      var old_cv_path = user.CvPath;
+      if (!string.IsNullOrEmpty(filePath) && !filePath.StartsWith("http"))
+      {
+        var baseUrl = _configuration["AppSettings:BaseUrl"];
+        filePath = $"{baseUrl}/Resources/UserCV/{filePath}";
+      }
+
+      if (old_cv_path != null && old_cv_path != filePath)
+      {
+        _fileService.DeleteFile(old_cv_path.Replace($"{_configuration["AppSettings:BaseUrl"]}/Resources/", ""));
+      }
+      
+      user.CvPath = filePath;
+      user.UpdatedAt = DateTime.UtcNow;
+      await _context.SaveChangesAsync();
+      
+      return new UploadCvResultDTO { CvPath = filePath };
+    }
   }
 }

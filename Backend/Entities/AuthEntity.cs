@@ -43,6 +43,7 @@ namespace Backend.Entities
         public UserStatus Status { get; set; } = UserStatus.Active;
         public virtual ICollection<Token>? Tokens { get; set; }
         public DateTime? EmailVerifiedAt { get; set; }
+        public string? CvPath { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

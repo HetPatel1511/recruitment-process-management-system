@@ -82,3 +82,19 @@ export const bulkUploadUsers = createAsyncThunk(
     }
   }
 )
+
+export const uploadUserCV = createAsyncThunk(
+  "users/uploadUserCV",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(API_URLS.UPLOAD_USER_CV, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data.message);
+    }
+  }
+)

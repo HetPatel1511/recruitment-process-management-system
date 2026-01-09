@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import { bulkUploadUsers, changeUserRole, getSingleUser, getUsers, updateUser } from "./usersApi";
+import { bulkUploadUsers, changeUserRole, getSingleUser, getUsers, updateUser, uploadUserCV } from "./usersApi";
 
 const initialState = {
   user: null,
@@ -31,6 +31,8 @@ const userSlice = createSlice({
       state.updateError = null;
       state.changeUserRoleStatus = 'idle';
       state.changeUserRoleError = null;
+      state.uploadCVStatus = 'idle';
+      state.uploadCVError = null;
     }
   },
   extraReducers: (builder) => {
@@ -120,6 +122,25 @@ const userSlice = createSlice({
     .addCase(bulkUploadUsers.rejected, (state, action) => {
       state.bulkUploadStatus = 'failed';
       state.bulkUploadError = action.error.message;
+      toast.error(action.payload);
+    })
+
+    // Upload User CV
+    .addCase(uploadUserCV.pending, (state) => {
+      state.uploadCVStatus = 'loading';
+      state.uploadCVError = null;
+    })
+    .addCase(uploadUserCV.fulfilled, (state, action) => {
+      state.uploadCVStatus = 'succeeded';
+      state.uploadCVError = null;
+      if (state.singleUser) {
+        state.singleUser.cvPath = action.payload.data?.cvPath;
+      }
+      toast.success(action.payload.message);
+    })
+    .addCase(uploadUserCV.rejected, (state, action) => {
+      state.uploadCVStatus = 'failed';
+      state.uploadCVError = action.error.message;
       toast.error(action.payload);
     })
   }
