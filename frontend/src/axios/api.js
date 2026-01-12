@@ -1,4 +1,4 @@
-export const baseURL = "http://localhost:5041/";
+export const baseURL = process.env.REACT_APP_API_BASE_URL;
 
 export const API_URLS = {
     // Auth
